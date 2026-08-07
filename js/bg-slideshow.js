@@ -24,14 +24,21 @@ export function initBgSlideshow(config, opts = {}) {
 
   if (!slideA || !slideB || images.length === 0) return null;
 
-  const crossfadeMs = Math.max(0, Number(config.crossfadeMs) || 1400);
+  const reducedMotion = Boolean(opts.reducedMotion);
+  const crossfadeMs = reducedMotion
+    ? 0
+    : Math.max(0, Number(config.crossfadeMs) || 1400);
   const intervalMs = Math.max(crossfadeMs + 500, Number(config.intervalMs) || 8000);
 
-  if (root) root.style.setProperty('--bg-crossfade', `${crossfadeMs}ms`);
+  if (root) {
+    root.style.setProperty('--bg-crossfade', `${crossfadeMs}ms`);
+    root.classList.toggle('is-instant', reducedMotion);
+  }
 
   let index = 0;
   let showingA = true;
   let timer = null;
+  let stopped = false;
 
   const setBg = (el, src) => {
     el.style.backgroundImage = `url("${src}")`;
@@ -41,18 +48,21 @@ export function initBgSlideshow(config, opts = {}) {
   slideA.classList.add('is-active');
   slideB.classList.remove('is-active');
 
-  if (opts.reducedMotion || images.length < 2) {
+  if (images.length < 2) {
     return { stop() {} };
   }
 
   const advance = async () => {
     const next = (index + 1) % images.length;
     await preload(images[next]);
+    if (stopped) return;
 
     const incoming = showingA ? slideB : slideA;
     const outgoing = showingA ? slideA : slideB;
 
     setBg(incoming, images[next]);
+    // Force a reflow so the browser applies the new background before fading.
+    void incoming.offsetWidth;
     incoming.classList.add('is-active');
     outgoing.classList.remove('is-active');
 
@@ -61,19 +71,32 @@ export function initBgSlideshow(config, opts = {}) {
   };
 
   const schedule = () => {
+    if (stopped) return;
     timer = window.setTimeout(async () => {
+      if (document.hidden) {
+        schedule();
+        return;
+      }
       await advance();
       schedule();
     }, intervalMs);
   };
 
-  // Warm the second image so the first transition is smooth.
-  preload(images[1]).then(schedule);
+  const onVisibility = () => {
+    if (!document.hidden && !timer && !stopped) schedule();
+  };
+  document.addEventListener('visibilitychange', onVisibility);
+
+  preload(images[1]).then(() => {
+    if (!stopped) schedule();
+  });
 
   return {
     stop() {
+      stopped = true;
       if (timer) window.clearTimeout(timer);
       timer = null;
+      document.removeEventListener('visibilitychange', onVisibility);
     },
   };
 }
