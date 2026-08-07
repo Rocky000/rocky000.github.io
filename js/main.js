@@ -33,20 +33,7 @@ function renderHero() {
   $('#aboutSummary').textContent = profile.summary;
   $('#footerName').textContent = `© ${new Date().getFullYear()} ${profile.name}`;
 
-  const resumeUrl = `${profile.resume}?v=${profile.resumeVersion ?? '1'}`;
-  const previewLinks = [$('#heroResume'), $('#contactResume')].filter(Boolean);
-  previewLinks.forEach((el) => {
-    el.href = resumeUrl;
-    el.removeAttribute('download');
-    el.target = '_blank';
-    el.rel = 'noopener noreferrer';
-  });
-
-  const downloadLink = $('#contactResumeDownload');
-  if (downloadLink) {
-    downloadLink.href = resumeUrl;
-    downloadLink.setAttribute('download', 'Rockibul_Islam_Khan_Resume.pdf');
-  }
+  wireResumeLinks();
 
   $('#heroStats').innerHTML = stats
     .map(
@@ -57,6 +44,44 @@ function renderHero() {
       </li>`,
     )
     .join('');
+}
+
+/** Preview opens the PDF in a new tab; download uses a blob so browsers actually save the file. */
+function wireResumeLinks() {
+  const resumeUrl = `${profile.resume}?v=${profile.resumeVersion ?? '1'}`;
+  const fileName = 'Rockibul_Islam_Khan_Resume.pdf';
+
+  [$('#heroResume'), $('#contactResume')].filter(Boolean).forEach((el) => {
+    el.href = resumeUrl;
+    el.removeAttribute('download');
+    el.target = '_blank';
+    el.rel = 'noopener noreferrer';
+  });
+
+  const downloadLink = $('#contactResumeDownload');
+  if (!downloadLink) return;
+
+  downloadLink.href = resumeUrl;
+  downloadLink.removeAttribute('download');
+  downloadLink.addEventListener('click', async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch(resumeUrl, { cache: 'no-store' });
+      if (!res.ok) throw new Error(`Resume fetch failed (${res.status})`);
+      const blob = await res.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = objectUrl;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      console.warn('Resume download failed; opening in a new tab instead.', err);
+      window.open(resumeUrl, '_blank', 'noopener,noreferrer');
+    }
+  });
 }
 
 function renderNav() {

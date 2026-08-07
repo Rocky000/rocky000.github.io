@@ -68,7 +68,7 @@ export const profile = {
   phoneHref: '+8801551806344',
   resume: 'assets/resume/Rockibul_Islam_Khan_Resume.pdf',
   // Bump this whenever you replace the PDF so browsers/CDN skip the old file.
-  resumeVersion: '20260807',
+  resumeVersion: '20260807b',
   tagline: 'I build and operate the cloud infrastructure that keeps healthcare and restaurant SaaS platforms running.',
   summary:
     'Senior DevOps & Cloud Platform Engineer with 7+ years of experience building and operating business-critical infrastructure on AWS for healthcare and restaurant SaaS platforms. Beyond infrastructure, brings rare full-stack capability — having sole-owned the design, development, and production deployment of real-time systems (WebSocket/Webhook) and admin tooling for restaurant POS platforms. Deep expertise in Kubernetes (EKS), CI/CD automation (Jenkins, GitHub Actions), Infrastructure as Code (Terraform, Ansible), serverless architecture (AWS Lambda, EventBridge), and automated code quality pipelines (ESLint, SonarQube, CodeQL). Proven track record of driving cloud cost optimization, enforcing HIPAA compliance, and delivering systems that are live in production across 30+ restaurant brands.',
