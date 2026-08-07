@@ -1,0 +1,18 @@
+<section class="section section--gallery" id="gallery">
+  <div class="wrap">
+    <!-- Heading text lives in js/data.js → sections.gallery -->
+    <header class="section__head reveal" data-section-head="gallery"></header>
+  </div>
+  <div class="carousel" id="carousel" tabindex="0" role="group"
+       aria-label="Photo carousel. Use the left and right arrow keys to browse.">
+    <canvas class="carousel__canvas" id="galleryCanvas"></canvas>
+    <div class="carousel__fallback" id="galleryFallback" hidden></div>
+    <button class="carousel__nav carousel__nav--prev" id="galleryPrev" aria-label="Previous photo">
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg>
+    </button>
+    <button class="carousel__nav carousel__nav--next" id="galleryNext" aria-label="Next photo">
+      <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg>
+    </button>
+    <p class="carousel__caption" id="galleryCaption" aria-live="polite"></p>
+  </div>
+</section>

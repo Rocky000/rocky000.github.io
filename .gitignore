@@ -1,0 +1,15 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.cursor/
+*.swp
+*~
+
+# Local tooling / temp
+.capture/
+*.log
+__pycache__/
+
+# Source originals (site serves optimized copies from assets/)
+Photos-1-001/
+Rockibul_Islam_Khan_Resume_v2*.docx
