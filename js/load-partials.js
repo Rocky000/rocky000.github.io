@@ -5,7 +5,7 @@
  * Mount map:
  *   #mount-chrome  → icons + nav + social rail
  *   #mount-main    → page sections (hero … contact)
- *   #mount-end     → footer + lightbox
+ *   #mount-end     → footer
  */
 
 const PARTIALS = {
@@ -16,7 +16,6 @@ const PARTIALS = {
     'skills.html',
     'experience.html',
     'projects.html',
-    'gallery.html',
     'credentials.html',
     'contact.html',
   ],

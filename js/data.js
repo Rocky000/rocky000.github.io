@@ -35,11 +35,6 @@ export const sections = {
     title: 'Education, certifications <span class="accent">&amp; honors</span>',
     note: 'Auto-advances. Drag sideways anytime to browse.',
   },
-  gallery: {
-    kicker: 'Off the terminal',
-    title: 'A little <span class="accent">outside the cloud</span>',
-    note: 'Drag, scroll, or use the arrows to spin the carousel. Click a photo to enlarge.',
-  },
   contact: {
     kicker: 'Contact Me',
     title: "Let's build something <span class=\"accent\">reliable</span>",
@@ -72,8 +67,6 @@ export const profile = {
   phone: '+880 1551-806344',
   phoneHref: '+8801551806344',
   resume: 'assets/resume/Rockibul_Islam_Khan_Resume.docx',
-  heroPhoto: 'assets/img/portrait-hero.jpg',
-  aboutPhoto: 'assets/img/portrait-about.jpg',
   tagline: 'I build and operate the cloud infrastructure that keeps healthcare and restaurant SaaS platforms running.',
   summary:
     'Senior DevOps & Cloud Platform Engineer with 7+ years of experience building and operating business-critical infrastructure on AWS for healthcare and restaurant SaaS platforms. Beyond infrastructure, brings rare full-stack capability — having sole-owned the design, development, and production deployment of real-time systems (WebSocket/Webhook) and admin tooling for restaurant POS platforms. Deep expertise in Kubernetes (EKS), CI/CD automation (Jenkins, GitHub Actions), Infrastructure as Code (Terraform, Ansible), serverless architecture (AWS Lambda, EventBridge), and automated code quality pipelines (ESLint, SonarQube, CodeQL). Proven track record of driving cloud cost optimization, enforcing HIPAA compliance, and delivering systems that are live in production across 30+ restaurant brands.',
@@ -343,12 +336,12 @@ export const education = {
       period: '2014 – 2018',
     },
     {
-      degree: 'HSC. in Science',
+      degree: 'H.S.C. in Science',
       school: 'Cambrian College',
       period: '2011 – 2013',
     },
     {
-      degree: 'SSC. in Science',
+      degree: 'S.S.C. in Science',
       school: "Sher-e-Bangla Government Boys' High School & College",
       period: '2009 – 2011',
     },
@@ -374,81 +367,27 @@ export const awards = [
   },
 ];
 
-// `ratio` is width / height, used to size the carousel planes correctly.
-export const gallery = [
-  {
-    src: 'assets/img/fjord-bow.jpg',
-    ratio: 4 / 3,
-    caption: 'Norwegian fjords',
-    alt: 'Standing at the bow of a boat cruising through the Norwegian fjords',
-  },
-  {
-    src: 'assets/img/oslo-waterfront.jpg',
-    ratio: 1,
-    caption: 'Oslo waterfront',
-    alt: 'Leaning on a railing at the Oslo harbour waterfront',
-  },
-  {
-    src: 'assets/img/team-gokart.jpg',
-    ratio: 4 / 3,
-    caption: 'Team day out',
-    alt: 'Go-karting with the engineering team',
-  },
-  {
-    src: 'assets/img/sea-breeze.jpg',
-    ratio: 4 / 3,
-    caption: 'Open water',
-    alt: 'On a boat with the open sea in the background',
-  },
-  {
-    src: 'assets/img/oslo-night-square.jpg',
-    ratio: 3 / 4,
-    caption: 'Oslo after dark',
-    alt: 'Standing in a city square in Oslo at night',
-  },
-  {
-    src: 'assets/img/boat-deck.jpg',
-    ratio: 4 / 3,
-    caption: 'Deck days',
-    alt: 'Relaxing in a deck chair on a boat',
-  },
-  {
-    src: 'assets/img/oslo-street.jpg',
-    ratio: 3 / 4,
-    caption: 'City streets',
-    alt: 'Leaning against a building on a quiet Oslo street',
-  },
-  {
-    src: 'assets/img/train-window.jpg',
-    ratio: 4 / 3,
-    caption: 'Always on the move',
-    alt: 'Reading on a phone next to a train window',
-  },
-  {
-    src: 'assets/img/boat-relax.jpg',
-    ratio: 4 / 3,
-    caption: 'Slow afternoons',
-    alt: 'Sitting back in a deck chair by the water',
-  },
-  {
-    src: 'assets/img/lounge-armchair.jpg',
-    ratio: 3 / 4,
-    caption: 'Off the clock',
-    alt: 'Sitting in an armchair holding a phone',
-  },
-  {
-    src: 'assets/img/portrait-about.jpg',
-    ratio: 4 / 3,
-    caption: 'Somewhere green',
-    alt: 'Sitting on a park bench surrounded by trees',
-  },
-  {
-    src: 'assets/img/portrait-hero.jpg',
-    ratio: 3 / 4,
-    caption: 'Logic',
-    alt: 'Portrait standing in front of a wall reading LOGIC',
-  },
-];
+/* --------------------------------------------------------------------------
+   PAGE BACKGROUND SLIDESHOW
+   Full-viewport photos only (no foreground photo UI). Scenic shots; portraits
+   intentionally omitted. Edit `images` / timing here to change the rotation.
+   -------------------------------------------------------------------------- */
+export const bgSlideshow = {
+  intervalMs: 8000,
+  crossfadeMs: 1400,
+  images: [
+    'assets/img/fjord-bow.jpg',
+    'assets/img/oslo-waterfront.jpg',
+    'assets/img/team-gokart.jpg',
+    'assets/img/sea-breeze.jpg',
+    'assets/img/oslo-night-square.jpg',
+    'assets/img/boat-deck.jpg',
+    'assets/img/oslo-street.jpg',
+    'assets/img/train-window.jpg',
+    'assets/img/boat-relax.jpg',
+    'assets/img/lounge-armchair.jpg',
+  ],
+};
 
 export const nav = [
   { id: 'home', label: 'Home' },
@@ -456,6 +395,5 @@ export const nav = [
   { id: 'skills', label: 'Skills' },
   { id: 'experience', label: 'Experience' },
   { id: 'projects', label: 'Projects' },
-  { id: 'gallery', label: 'Gallery' },
   { id: 'contact', label: 'Contact' },
 ];

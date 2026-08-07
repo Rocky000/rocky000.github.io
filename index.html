@@ -43,11 +43,18 @@
   partials/skills.html       skills section
   partials/experience.html   experience section
   partials/projects.html     projects section
-  partials/gallery.html      3D gallery section
   partials/credentials.html  education / certs / awards
   partials/contact.html      contact section
-  partials/footer.html       footer + lightbox
+  partials/footer.html       footer
+
+  Background photos: js/data.js → bgSlideshow (no foreground photo UI).
 -->
+
+<div class="bg-slideshow" aria-hidden="true">
+  <div class="bg-slideshow__slide is-active" id="bgSlideA"></div>
+  <div class="bg-slideshow__slide" id="bgSlideB"></div>
+  <div class="bg-slideshow__veil"></div>
+</div>
 
 <div id="mount-chrome"></div>
 

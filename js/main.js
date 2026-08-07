@@ -12,7 +12,7 @@ let projects;
 let education;
 let certifications;
 let awards;
-let gallery;
+let bgSlideshow;
 let navItems;
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -30,8 +30,6 @@ function renderHero() {
   $('#heroName').textContent = profile.name;
   $('#heroTitle').textContent = profile.title;
   $('#heroTagline').textContent = profile.tagline;
-  $('#heroPhoto').src = profile.heroPhoto;
-  $('#aboutPhoto').src = profile.aboutPhoto;
   $('#aboutSummary').textContent = profile.summary;
   $('#footerName').textContent = `© ${new Date().getFullYear()} ${profile.name}`;
 
@@ -273,7 +271,7 @@ function initNav() {
   });
 
   // Scroll spy
-  const sections = navItems
+  const sectionEls = navItems
     .map((n) => document.getElementById(n.id))
     .filter(Boolean);
 
@@ -288,7 +286,7 @@ function initNav() {
     },
     { rootMargin: '-45% 0px -50% 0px', threshold: 0 },
   );
-  sections.forEach((s) => spy.observe(s));
+  sectionEls.forEach((s) => spy.observe(s));
 }
 
 function initReveal() {
@@ -359,7 +357,7 @@ function initCounters() {
   nodes.forEach((n) => observer.observe(n));
 }
 
-/** Pointer-following 3D tilt for cards and the hero portrait. */
+/** Pointer-following 3D tilt for interactive cards. */
 function initTilt() {
   if (prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return;
 
@@ -395,128 +393,6 @@ function initTilt() {
   };
 
   $$('.tilt').forEach((el) => apply(el, 9));
-
-  const portrait = $('#heroPortrait');
-  if (portrait) {
-    const parent = portrait.parentElement;
-    let raf = null;
-    parent.addEventListener('pointermove', (e) => {
-      const rect = parent.getBoundingClientRect();
-      const px = (e.clientX - rect.left) / rect.width;
-      const py = (e.clientY - rect.top) / rect.height;
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        portrait.style.transform =
-          `rotateX(${(0.5 - py) * 14}deg) rotateY(${(px - 0.5) * 18}deg)`;
-      });
-    });
-    parent.addEventListener('pointerleave', () => {
-      portrait.style.transform = '';
-    });
-  }
-}
-
-/* ============================================================= lightbox === */
-
-function initLightbox() {
-  const box = $('#lightbox');
-  const img = $('#lightboxImg');
-  const caption = $('#lightboxCaption');
-  const closeBtn = $('#lightboxClose');
-  let lastFocus = null;
-
-  const open = (item) => {
-    if (!item) return;
-    img.src = item.src;
-    img.alt = item.alt;
-    caption.textContent = item.caption;
-    box.hidden = false;
-    document.body.classList.add('is-locked');
-    lastFocus = document.activeElement;
-    closeBtn.focus();
-  };
-
-  const close = () => {
-    box.hidden = true;
-    img.src = '';
-    document.body.classList.remove('is-locked');
-    lastFocus?.focus?.();
-  };
-
-  closeBtn.addEventListener('click', close);
-  box.addEventListener('click', (e) => {
-    // Clicking the backdrop closes; clicking the photo itself does not.
-    if (!e.target.closest('.lightbox__figure') && e.target !== closeBtn) close();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !box.hidden) close();
-  });
-
-  return { open, close };
-}
-
-/* ============================================================== gallery === */
-
-function renderGalleryFallback(lightbox) {
-  const canvas = $('#galleryCanvas');
-  const fallback = $('#galleryFallback');
-
-  canvas.hidden = true;
-  canvas.style.display = 'none';
-  $('#galleryPrev').hidden = true;
-  $('#galleryNext').hidden = true;
-  $('#galleryCaption').hidden = true;
-  $('#carousel').style.height = 'auto';
-
-  fallback.hidden = false;
-  fallback.innerHTML = gallery
-    .map(
-      (g, i) =>
-        `<img src="${g.src}" alt="${g.alt}" loading="lazy" data-index="${i}" width="1400" height="1050">`,
-    )
-    .join('');
-
-  fallback.addEventListener('click', (e) => {
-    const target = e.target.closest('img');
-    if (target) lightbox.open(gallery[Number(target.dataset.index)]);
-  });
-}
-
-function initGallery(lightbox) {
-  const canvas = $('#galleryCanvas');
-  const container = $('#carousel');
-  const captionEl = $('#galleryCaption');
-
-  import('./scene-gallery.js')
-    .then(({ initGalleryScene }) => {
-      const scene = initGalleryScene({
-        canvas,
-        container,
-        items: gallery,
-        onSelect: (item) => lightbox.open(item),
-        onFocus: (item) => {
-          captionEl.textContent = item.caption;
-        },
-      });
-
-      if (!scene) {
-        renderGalleryFallback(lightbox);
-        return;
-      }
-
-      $('#galleryPrev').addEventListener('click', scene.prev);
-      $('#galleryNext').addEventListener('click', scene.next);
-
-      container.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') scene.prev();
-        if (e.key === 'ArrowRight') scene.next();
-      });
-    })
-    .catch((err) => {
-      console.warn('Gallery: falling back to grid.', err);
-      renderGalleryFallback(lightbox);
-    });
 }
 
 /* ================================================================= hero === */
@@ -553,7 +429,7 @@ async function boot() {
     education = data.education;
     certifications = data.certifications;
     awards = data.awards;
-    gallery = data.gallery;
+    bgSlideshow = data.bgSlideshow;
     navItems = data.nav;
 
     const { loadPartials } = await import(`./load-partials.js?t=${bust}`);
@@ -580,10 +456,10 @@ async function boot() {
   initReveal();
   initCounters();
   initTilt();
-
-  const lightbox = initLightbox();
   initHero();
-  initGallery(lightbox);
+
+  const { initBgSlideshow } = await import(`./bg-slideshow.js?t=${bust}`);
+  initBgSlideshow(bgSlideshow, { reducedMotion: prefersReducedMotion });
 }
 
 if (document.readyState === 'loading') {
