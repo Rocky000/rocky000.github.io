@@ -586,6 +586,9 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .section--contact { padding-bottom: clamp(4rem, 8vw, 6rem); }
 .contact { display: grid; justify-items: center; gap: 2rem; }
+.contact__resume {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: .85rem;
+}
 .contact__list {
   display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem;
 }

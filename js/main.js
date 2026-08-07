@@ -33,10 +33,20 @@ function renderHero() {
   $('#aboutSummary').textContent = profile.summary;
   $('#footerName').textContent = `© ${new Date().getFullYear()} ${profile.name}`;
 
-  [$('#heroResume'), $('#contactResume')].forEach((el) => {
-    el.href = profile.resume;
-    el.setAttribute('download', 'Rockibul_Islam_Khan_Resume.docx');
+  const resumeUrl = `${profile.resume}?v=${profile.resumeVersion ?? '1'}`;
+  const previewLinks = [$('#heroResume'), $('#contactResume')].filter(Boolean);
+  previewLinks.forEach((el) => {
+    el.href = resumeUrl;
+    el.removeAttribute('download');
+    el.target = '_blank';
+    el.rel = 'noopener noreferrer';
   });
+
+  const downloadLink = $('#contactResumeDownload');
+  if (downloadLink) {
+    downloadLink.href = resumeUrl;
+    downloadLink.setAttribute('download', 'Rockibul_Islam_Khan_Resume.pdf');
+  }
 
   $('#heroStats').innerHTML = stats
     .map(
