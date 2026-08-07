@@ -38,6 +38,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 16px);
   -webkit-text-size-adjust: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -48,7 +50,9 @@ body {
   font-size: 16px;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  max-width: 100%;
+  overflow-x: clip;
+  position: relative;
 }
 
 /* Fixed photo background — content stacks above */
@@ -134,8 +138,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 /* --------------------------------------------------------- Navigation --- */
 
 .nav {
-  position: fixed; inset: 0 0 auto 0; z-index: 100;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  width: 100%;
+  max-width: 100%;
   height: var(--nav-h);
+  box-sizing: border-box;
   transition: background .35s var(--ease), border-color .35s var(--ease), backdrop-filter .35s;
   border-bottom: 1px solid transparent;
 }
@@ -157,6 +166,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   align-items: center;
   justify-content: space-between;
   gap: .75rem;
+  min-width: 0;
 }
 .nav__brand {
   display: flex; align-items: center; gap: .65rem;
@@ -180,7 +190,14 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-.nav__links { display: flex; align-items: center; gap: .25rem; flex: none; }
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  flex: 0 1 auto;
+  justify-content: flex-end;
+  min-width: 0;
+}
 .nav__link {
   position: relative;
   padding: .5rem .85rem; border-radius: 999px;
@@ -198,7 +215,7 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .nav__toggle {
   display: none;
-  width: 42px; height: 42px; border-radius: 11px;
+  width: 44px; height: 44px; border-radius: 11px;
   border: 1px solid var(--line); background: var(--surface);
   padding: 11px 10px;
   flex: none;
@@ -266,10 +283,11 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 .hero__inner {
   position: relative; z-index: 2;
-  width: min(100% - 2.5rem, var(--wrap));
-  margin-inline: auto;
+  width: 100%;
   max-width: 640px;
-  margin-left: max(1.25rem, calc((100% - min(100% - 2.5rem, var(--wrap))) / 2));
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+  box-sizing: border-box;
 }
 
 .hero__eyebrow {
@@ -362,7 +380,12 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 
 /* ----------------------------------------------------------- Sections --- */
 
-.section { padding: clamp(4.5rem, 9vw, 7.5rem) 0; position: relative; }
+.section {
+  padding: clamp(4.5rem, 9vw, 7.5rem) 0;
+  position: relative;
+  overflow-x: clip;
+  max-width: 100%;
+}
 .section--alt {
   background: rgba(8, 11, 23, 0.42);
   backdrop-filter: blur(2px);
@@ -479,6 +502,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   touch-action: pan-y;
   outline: none;
   margin-bottom: 1.5rem;
+  overflow: hidden;
+  max-width: 100%;
 }
 .deck:focus-visible { outline: none; }
 .deck:focus-visible .deck__stage {
@@ -493,6 +518,8 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   cursor: grab;
   display: grid;
   place-items: center;
+  overflow: hidden;
+  max-width: 100%;
 }
 .deck__stage::after {
   content: '';
@@ -679,27 +706,54 @@ a.contact__item:hover { color: var(--text); border-color: var(--line-hi); transf
 }
 
 @media (max-width: 900px) {
-  .hero__inner { max-width: none; margin-left: auto; margin-right: auto; }
+  .hero__inner { max-width: none; padding-inline: 1rem; }
   .hero__stats { grid-template-columns: repeat(2, 1fr); max-width: 420px; }
 
-  .nav__toggle { display: block; }
+  .nav__inner {
+    max-width: none;
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 44px;
+    align-items: center;
+    column-gap: .75rem;
+    padding-inline: max(1rem, env(safe-area-inset-left, 0px))
+                    max(1rem, env(safe-area-inset-right, 0px));
+  }
+  .nav__brand {
+    grid-column: 1;
+    grid-row: 1;
+    max-width: 100%;
+  }
+  .nav__toggle {
+    display: block;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    align-self: center;
+    margin: 0;
+  }
+  /* Keep closed menu out of the grid so it cannot shove the toggle */
   .nav__links {
     position: fixed;
     top: var(--nav-h); left: 0; right: 0;
     z-index: 99;
-    display: none;
+    display: none !important;
     flex-direction: column; align-items: stretch; gap: .25rem;
     width: 100%;
-    max-height: calc(100svh - var(--nav-h));
+    max-width: 100%;
+    max-height: calc(100svh - var(--nav-h) - env(safe-area-inset-bottom, 0px));
+    overflow-x: hidden;
     overflow-y: auto;
-    padding: 1rem max(1.25rem, env(safe-area-inset-right, 0px)) 1.5rem
-             max(1.25rem, env(safe-area-inset-left, 0px));
+    margin: 0;
+    padding: 1rem max(1rem, env(safe-area-inset-right, 0px)) 1.5rem
+             max(1rem, env(safe-area-inset-left, 0px));
     box-sizing: border-box;
-    background: rgba(5, 7, 15, .94);
+    background: rgba(5, 7, 15, .96);
     backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border-bottom: 1px solid var(--line);
   }
-  .nav__links.is-open { display: flex; }
+  .nav__links.is-open { display: flex !important; }
   .nav__link { padding: .8rem 1rem; border-radius: var(--r-sm); font-size: .95rem; }
   .nav__link.is-active::after { display: none; }
   .nav__link.is-active { background: var(--surface); color: var(--cyan); }
@@ -707,12 +761,12 @@ a.contact__item:hover { color: var(--text); border-color: var(--line-hi); transf
 
 @media (max-width: 640px) {
   .wrap { padding-inline: 1rem; }
-  .nav__inner {
-    padding-inline: max(1rem, env(safe-area-inset-left, 0px))
-                    max(1rem, env(safe-area-inset-right, 0px));
-  }
+  .hero__inner { padding-inline: 1rem; }
   .hero__stats { gap: 1rem; }
+  .hero__name { font-size: clamp(2rem, 9vw, 2.75rem); }
   .deck__card > * { padding: 1.25rem; }
+  .contact__resume { width: 100%; }
+  .contact__resume .btn { flex: 1 1 auto; justify-content: center; }
   .footer__inner { flex-direction: column; text-align: center; }
 }
 

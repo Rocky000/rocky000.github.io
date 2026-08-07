@@ -308,14 +308,16 @@ export function initDeck({ root, items, renderCard, settings = {}, onFocus, labe
   document.addEventListener('visibilitychange', onVisibility);
 
   const authoredW = cfg.cardW;
-  const resizeObserver = new ResizeObserver(() => {
-    const w = root.clientWidth || window.innerWidth;
-    const fit = Math.min(authoredW, w - 48);
+  const fitWidth = () => {
+    const w = root.clientWidth || Math.min(window.innerWidth, document.documentElement.clientWidth);
+    const fit = Math.max(240, Math.min(authoredW, w - 48));
     cfg.cardW = fit;
     root.style.setProperty('--card-w', `${fit}px`);
     paint();
-  });
+  };
+  const resizeObserver = new ResizeObserver(fitWidth);
   resizeObserver.observe(root);
+  fitWidth();
 
   paint();
   wake();
