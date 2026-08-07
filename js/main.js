@@ -450,9 +450,12 @@ function initHero() {
 /* ================================================================= boot === */
 
 async function boot() {
-  const bust = Date.now();
+  // Prefer the revision stamped on this main.js URL (?v=...), else time-based.
+  const rev =
+    new URL(import.meta.url).searchParams.get('v') || String(Date.now());
+  const bust = `${rev}-${Date.now()}`;
   try {
-    const data = await import(`./data.js?t=${bust}`);
+    const data = await import(`./data.js?v=${bust}`);
     sections = data.sections;
     deckSettings = data.deckSettings;
     profile = data.profile;
@@ -467,7 +470,7 @@ async function boot() {
     bgSlideshow = data.bgSlideshow;
     navItems = data.nav;
 
-    const { loadPartials } = await import(`./load-partials.js?t=${bust}`);
+    const { loadPartials } = await import(`./load-partials.js?v=${bust}`);
     await loadPartials();
   } catch (err) {
     console.error('Failed to load page data/partials.', err);

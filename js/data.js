@@ -2,7 +2,12 @@
    SINGLE EDIT POINT
    Everything the site displays is defined in this file.
    Change a value here and it updates everywhere it appears.
+
+   Bump `siteRevision` whenever you change content so CDNs/browsers skip stale JS.
    ========================================================================== */
+
+/** Bump this string on every content deploy (projects, copy, resume, etc.). */
+export const siteRevision = '20260807-projects';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
@@ -255,14 +260,6 @@ export const projects = [
     summary:
       'Designed and built a centralized Jenkins Shared Library used by all development teams, standardizing CI/CD pipelines across the organization and reducing pipeline creation time by ~60%.',
     tags: ['Jenkins', 'Groovy', 'CI/CD'],
-  },
-  {
-    title: 'AWS EKS Platform Engineering',
-    badge: '99.9% uptime',
-    featured: false,
-    summary:
-      'Designed, deployed, and operate multi-cluster EKS environments hosting 20+ production applications. Achieved 99.9% availability through automated rollouts, pod disruption budgets, and cluster autoscaling.',
-    tags: ['EKS', 'Kubernetes', 'Helm'],
   },
   {
     title: 'AWS Lambda Real-Time Security & CI/CD Notifier',
