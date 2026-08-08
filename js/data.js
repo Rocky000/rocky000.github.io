@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260807-projects';
+export const siteRevision = '20260808-cred3';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
@@ -49,18 +49,19 @@ export const sections = {
 
 /* --------------------------------------------------------------------------
    DECK TUNING
-   One card visible at a time. `default` applies to every deck; a named block
-   overrides only the keys it lists.
+   `default` applies to every deck; a named block overrides only the keys it lists.
 
    cardW / cardH  card size in pixels
    autoplayMs     pause before advancing to the next card (loops forever)
+   visible        how many cards to show at once (default 1; falls back to 1 on narrow viewports)
    -------------------------------------------------------------------------- */
 export const deckSettings = {
-  // One card at a time. autoplayMs is the pause before advancing (loop).
-  default: { cardW: 420, cardH: 460, autoplayMs: 4500 },
-  skills: { cardW: 340, cardH: 360, autoplayMs: 4000 },
-  experience: { cardW: 640, cardH: 500, autoplayMs: 6000 },
-  credentials: { cardW: 460, cardH: 440, autoplayMs: 5000 },
+  // One card at a time unless a deck sets `visible`. autoplayMs is the pause before advancing (loop).
+  default: { cardW: 420, cardH: 460, autoplayMs: 4500, visible: 1 },
+  skills: { cardW: 280, cardH: 340, autoplayMs: 4000, visible: 3 },
+  projects: { cardW: 300, cardH: 400, autoplayMs: 5000, visible: 3 },
+  experience: { cardW: 420, cardH: 480, autoplayMs: 6000, visible: 2 },
+  credentials: { cardW: 300, cardH: 420, autoplayMs: 5000, visible: 3 },
 };
 
 export const profile = {

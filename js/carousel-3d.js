@@ -1,9 +1,10 @@
 /**
- * Landscape single-card deck.
+ * Landscape deck carousel.
  *
- * Only one card is visible at a time. Drag / horizontal scroll / keyboard
- * still work. Autoplay advances to the next card on a loop, and pauses while
- * the user is interacting or the deck is off-screen.
+ * By default only one card is visible. Pass `settings.visible` (e.g. 3) to
+ * show neighboring cards side-by-side. Drag / horizontal scroll / keyboard
+ * still work. Autoplay advances one card at a time on a loop, and pauses
+ * while the user is interacting or the deck is off-screen.
  *
  * Expected markup inside `root`:
  *   .deck__stage > .deck__track
@@ -13,13 +14,16 @@ const FRICTION = 0.88;
 const SNAP_STRENGTH = 0.18;
 const REST_THRESHOLD = 0.0005;
 const DRAG_TO_INDEX = 0.85;
+const CARD_GAP = 20;
+const STAGE_PAD = 48;
+const MIN_CARD_W = 200;
 
 /**
  * @param {object} opts
  * @param {HTMLElement} opts.root
  * @param {Array} opts.items
  * @param {(item, index) => string} opts.renderCard
- * @param {object} [opts.settings]  cardW, cardH, autoplayMs
+ * @param {object} [opts.settings]  cardW, cardH, autoplayMs, visible
  * @param {(item, index) => void} [opts.onFocus]
  * @param {string} [opts.label]
  */
@@ -33,14 +37,16 @@ export function initDeck({ root, items, renderCard, settings = {}, onFocus, labe
     cardW: 400,
     cardH: 450,
     autoplayMs: 4500,
+    visible: 1,
     ...settings,
   };
+  const authoredVisible = Math.max(1, Math.round(cfg.visible) || 1);
   const count = items.length;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   root.style.setProperty('--card-w', `${cfg.cardW}px`);
   root.style.setProperty('--card-h', `${cfg.cardH}px`);
-  root.classList.add('deck--solo');
+  root.classList.add(authoredVisible > 1 ? 'deck--multi' : 'deck--solo');
 
   track.innerHTML = items
     .map(
@@ -70,10 +76,12 @@ export function initDeck({ root, items, renderCard, settings = {}, onFocus, labe
   let inView = false;
   let autoplayTimer = null;
   let paused = false;
+  let effectiveVisible = 1;
 
   const clamp = (v) => Math.min(Math.max(v, 0), count - 1);
   const nearest = () => clamp(Math.round(position));
   const wrapIndex = (i) => ((i % count) + count) % count;
+  const isMulti = () => effectiveVisible > 1;
 
   function setFocus(i) {
     if (i === focused) return;
@@ -87,24 +95,45 @@ export function initDeck({ root, items, renderCard, settings = {}, onFocus, labe
     onFocus?.(items[i], i);
   }
 
+  /** Shortest signed distance on the ring so edge slides still get left/right neighbors. */
+  function ringOffset(i) {
+    let offset = i - position;
+    if (!isMulti() || count < 2) return offset;
+    const halfCount = count / 2;
+    while (offset > halfCount) offset -= count;
+    while (offset < -halfCount) offset += count;
+    return offset;
+  }
+
   function paint() {
+    const stride = isMulti() ? cfg.cardW + CARD_GAP : cfg.cardW * 0.55;
+    // Window of N cards around focus: odd → centered; even → current + next, then shifted to center.
+    const leftSpan = Math.floor((effectiveVisible - 1) / 2);
+    const rightSpan = Math.ceil((effectiveVisible - 1) / 2);
+    const groupShift = isMulti() ? ((rightSpan - leftSpan) / 2) * stride : 0;
+
     for (let i = 0; i < cards.length; i++) {
       const card = cards[i];
-      const offset = i - position;
+      const offset = ringOffset(i);
       const dist = Math.abs(offset);
 
-      // Strictly one card when settled; brief crossfade while sliding.
-      if (dist >= 0.98) {
+      const hidden = isMulti()
+        ? offset <= -leftSpan - 0.5 || offset >= rightSpan + 0.5
+        : dist >= 0.98;
+
+      if (hidden) {
         card.style.visibility = 'hidden';
         card.style.opacity = '0';
         continue;
       }
 
       card.style.visibility = '';
-      const x = reduceMotion ? 0 : offset * cfg.cardW * 0.55;
-      const opacity = Math.max(1 - dist * 1.15, 0);
+      const x = reduceMotion && !isMulti() ? 0 : offset * stride - groupShift;
+      const opacity = isMulti()
+        ? Math.max(1 - dist * 0.22, 0.72)
+        : Math.max(1 - dist * 1.15, 0);
 
-      card.style.transform = reduceMotion
+      card.style.transform = reduceMotion && !isMulti()
         ? 'translate3d(-50%, -50%, 0)'
         : `translate3d(calc(-50% + ${x}px), -50%, 0)`;
       card.style.opacity = String(opacity);
@@ -310,7 +339,27 @@ export function initDeck({ root, items, renderCard, settings = {}, onFocus, labe
   const authoredW = cfg.cardW;
   const fitWidth = () => {
     const w = root.clientWidth || Math.min(window.innerWidth, document.documentElement.clientWidth);
-    const fit = Math.max(240, Math.min(authoredW, w - 48));
+    const usable = Math.max(0, w - STAGE_PAD);
+
+    let nextVisible = 1;
+    if (authoredVisible > 1) {
+      const gaps = CARD_GAP * (authoredVisible - 1);
+      const needed = authoredW * authoredVisible + gaps;
+      nextVisible = usable >= needed * 0.85 ? authoredVisible : 1;
+    }
+    effectiveVisible = nextVisible;
+
+    root.classList.toggle('deck--multi', effectiveVisible > 1);
+    root.classList.toggle('deck--solo', effectiveVisible <= 1);
+
+    let fit;
+    if (effectiveVisible > 1) {
+      const gaps = CARD_GAP * (effectiveVisible - 1);
+      fit = Math.max(MIN_CARD_W, Math.min(authoredW, (usable - gaps) / effectiveVisible));
+    } else {
+      fit = Math.max(240, Math.min(authoredW, usable));
+    }
+
     cfg.cardW = fit;
     root.style.setProperty('--card-w', `${fit}px`);
     paint();

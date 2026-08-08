@@ -552,6 +552,10 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
   border-color: var(--line-hi);
   box-shadow: 0 0 0 1px rgba(56, 232, 225, 0.12);
 }
+.deck--multi .deck__card:not(.is-front) > * {
+  opacity: 0.92;
+  filter: saturate(0.92);
+}
 .deck__card > *:hover { transform: none; }
 
 .deck__scroll {
