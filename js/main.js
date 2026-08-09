@@ -1,6 +1,6 @@
 import { initDeck } from './carousel-3d.js';
 
-/* Data is loaded in boot() with a cache-bust so edits to data.js always show. */
+/* Data is loaded in boot() using siteRevision from the main.js URL (?v=...). */
 let sections;
 let deckSettings;
 let profile;
@@ -450,12 +450,12 @@ function initHero() {
 /* ================================================================= boot === */
 
 async function boot() {
-  // Prefer the revision stamped on this main.js URL (?v=...), else time-based.
+  // Prefer the revision stamped on this main.js URL (?v=...). Stable across reloads
+  // so CDNs/WAFs can cache modules; bump siteRevision in data.js when content changes.
   const rev =
     new URL(import.meta.url).searchParams.get('v') || String(Date.now());
-  const bust = `${rev}-${Date.now()}`;
   try {
-    const data = await import(`./data.js?v=${bust}`);
+    const data = await import(`./data.js?v=${rev}`);
     sections = data.sections;
     deckSettings = data.deckSettings;
     profile = data.profile;
@@ -469,14 +469,11 @@ async function boot() {
     awards = data.awards;
     bgSlideshow = data.bgSlideshow;
     navItems = data.nav;
-
-    const { loadPartials } = await import(`./load-partials.js?v=${bust}`);
-    await loadPartials();
   } catch (err) {
-    console.error('Failed to load page data/partials.', err);
+    console.error('Failed to load page data.', err);
     document.body.insertAdjacentHTML(
       'afterbegin',
-      '<p style="padding:2rem;color:#fff;font-family:sans-serif">Could not load page sections. Serve this site over HTTP (e.g. <code>python3 serve.py</code>) and refresh.</p>',
+      '<p style="padding:2rem;color:#fff;font-family:sans-serif">Could not load page data. Soft-refresh or check that <code>js/data.js</code> is reachable.</p>',
     );
     return;
   }
@@ -496,7 +493,7 @@ async function boot() {
   initTilt();
   initHero();
 
-  const { initBgSlideshow } = await import(`./bg-slideshow.js?t=${bust}`);
+  const { initBgSlideshow } = await import(`./bg-slideshow.js?v=${rev}`);
   initBgSlideshow(bgSlideshow, { reducedMotion: prefersReducedMotion });
 }
 

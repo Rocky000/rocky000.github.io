@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260808-cred3';
+export const siteRevision = '20260809-inline';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
