@@ -2,133 +2,90 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Md. Rockibul Islam Khan — Senior DevOps &amp; Cloud Platform Engineer</title>
-<meta name="description" content="Senior DevOps &amp; Cloud Platform Engineer with 7+ years building and operating business-critical AWS infrastructure — Kubernetes (EKS), Jenkins, Terraform, and real-time full-stack systems live across 30+ restaurant brands.">
-<meta name="author" content="Md. Rockibul Islam Khan">
-<meta name="keywords" content="Md. Rockibul Islam Khan, Rockibul, Senior DevOps Engineer, Cloud Platform Engineer, AWS, Kubernetes, EKS, Jenkins, Terraform, CI/CD, SRE, Infrastructure as Code, Dhaka, Bangladesh">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#04060d">
-
-<link rel="canonical" href="https://rockibul.info/">
-<link rel="sitemap" type="application/xml" title="Sitemap" href="https://rockibul.info/sitemap.xml">
-
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Md. Rockibul Islam Khan">
-<meta property="og:locale" content="en_US">
-<meta property="og:url" content="https://rockibul.info/">
-<meta property="og:title" content="Md. Rockibul Islam Khan — Senior DevOps &amp; Cloud Platform Engineer">
-<meta property="og:description" content="7+ years building and operating business-critical AWS infrastructure. Kubernetes, CI/CD, Terraform, and real-time full-stack systems in production.">
-<meta property="og:image" content="https://rockibul.info/assets/img/portrait-hero.jpg">
-<meta property="og:image:alt" content="Portrait of Md. Rockibul Islam Khan">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Md. Rockibul Islam Khan — Senior DevOps &amp; Cloud Platform Engineer">
-<meta name="twitter:description" content="7+ years building and operating business-critical AWS infrastructure. Kubernetes, CI/CD, Terraform, and real-time full-stack systems in production.">
-<meta name="twitter:image" content="https://rockibul.info/assets/img/portrait-hero.jpg">
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cloudflare WAF probe — rockibul.info</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b1220">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="apple-touch-icon" href="assets/img/myLogo.png">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet" href="css/style.css">
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "@id": "https://rockibul.info/#website",
-      "url": "https://rockibul.info/",
-      "name": "Md. Rockibul Islam Khan",
-      "description": "Senior DevOps & Cloud Platform Engineer with 7+ years building and operating business-critical AWS infrastructure.",
-      "inLanguage": "en",
-      "publisher": { "@id": "https://rockibul.info/#person" }
-    },
-    {
-      "@type": "Person",
-      "@id": "https://rockibul.info/#person",
-      "name": "Md. Rockibul Islam Khan",
-      "url": "https://rockibul.info/",
-      "image": "https://rockibul.info/assets/img/portrait-hero.jpg",
-      "jobTitle": "Senior DevOps & Cloud Platform Engineer",
-      "email": "mailto:rockibul.islam20@gmail.com",
-      "telephone": "+880-1551-806344",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Dhaka",
-        "addressCountry": "BD"
-      },
-      "sameAs": [
-        "https://www.linkedin.com/in/rocky7139",
-        "https://github.com/rocky000",
-        "https://www.facebook.com/rockibulislamkhan",
-        "https://www.youtube.com/@alvrocky"
-      ]
-    },
-    {
-      "@type": "ProfilePage",
-      "@id": "https://rockibul.info/#profilepage",
-      "url": "https://rockibul.info/",
-      "name": "Md. Rockibul Islam Khan — Senior DevOps & Cloud Platform Engineer",
-      "isPartOf": { "@id": "https://rockibul.info/#website" },
-      "mainEntity": { "@id": "https://rockibul.info/#person" },
-      "about": { "@id": "https://rockibul.info/#person" }
-    }
-  ]
-}
-</script>
-
-<script type="importmap">
-{
-  "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b1220;
+    --card: #121a2b;
+    --line: rgba(148, 163, 184, 0.28);
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --ok: #34d399;
+    --accent: #38bdf8;
   }
-}
-</script>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font: 16px/1.5 system-ui, -apple-system, Segoe UI, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1000px 500px at 10% -10%, rgba(56, 189, 248, 0.18), transparent 55%),
+      radial-gradient(800px 400px at 100% 0%, rgba(52, 211, 153, 0.12), transparent 50%),
+      var(--bg);
+    display: grid;
+    place-items: center;
+    padding: 2rem 1.25rem;
+  }
+  main {
+    width: min(40rem, 100%);
+    background: color-mix(in srgb, var(--card) 92%, black);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 1.75rem 1.5rem;
+  }
+  h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.35rem;
+    letter-spacing: -0.02em;
+  }
+  p { margin: 0.55rem 0; color: var(--muted); }
+  .ok { color: var(--ok); font-weight: 600; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    color: var(--accent);
+  }
+  ul {
+    margin: 1rem 0 0;
+    padding-left: 1.15rem;
+    color: var(--muted);
+  }
+  li { margin: 0.35rem 0; }
+  .meta {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    font-size: 0.9rem;
+  }
+</style>
 </head>
 <body>
-
-<!--
-  Page shell. Section markup lives in /partials/.
-  Edit those files to change layout — this file only mounts them.
-
-  partials/icons.html        SVG icon sprite
-  partials/nav.html          top nav + social rail
-  partials/hero.html         hero section
-  partials/about.html        about section
-  partials/skills.html       skills section
-  partials/experience.html   experience section
-  partials/projects.html     projects section
-  partials/credentials.html  education / certs / awards
-  partials/contact.html      contact section
-  partials/footer.html       footer
-
-  Background photos: js/data.js → bgSlideshow (no foreground photo UI).
--->
-
-<div class="bg-slideshow" aria-hidden="true">
-  <div class="bg-slideshow__slide is-active" id="bgSlideA"></div>
-  <div class="bg-slideshow__slide" id="bgSlideB"></div>
-  <div class="bg-slideshow__veil"></div>
-</div>
-
-<div id="mount-chrome"></div>
-
 <main>
-  <div id="mount-main"></div>
+  <h1>Static probe page</h1>
+  <p class="ok">Loaded without fetching <code>partials/*.html</code>.</p>
+  <p>
+    Original portfolio shell is backed up as <code>index-origin.html</code>.
+    This page is a single HTML document only — no JS modules, no parallel partial
+    requests, no <code>cache: 'no-store'</code> burst.
+  </p>
+  <ul>
+    <li>If this opens quickly on Cloudflare: WAF/proxy is mainly choking the multi-partial boot.</li>
+    <li>If this still hangs / blacks out: the block is broader than partial fetches.</li>
+  </ul>
+  <p class="meta">
+    Host check: <code id="host">—</code><br>
+    Rendered at: <code id="when">—</code>
+  </p>
 </main>
-
-<div id="mount-end"></div>
-
-<script type="module">
-  // siteRevision must match js/data.js → siteRevision (bump both on content deploys).
-  const siteRevision = '20260808-cred3';
-  import(`./js/main.js?v=${siteRevision}&t=${Date.now()}`);
+<script>
+  document.getElementById('host').textContent = location.host || '(unknown)';
+  document.getElementById('when').textContent = new Date().toISOString();
 </script>
 </body>
 </html>

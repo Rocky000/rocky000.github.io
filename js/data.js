@@ -56,7 +56,6 @@ export const sections = {
    visible        how many cards to show at once (default 1; falls back to 1 on narrow viewports)
    -------------------------------------------------------------------------- */
 export const deckSettings = {
-  // One card at a time unless a deck sets `visible`. autoplayMs is the pause before advancing (loop).
   default: { cardW: 420, cardH: 460, autoplayMs: 4500, visible: 1 },
   skills: { cardW: 280, cardH: 340, autoplayMs: 4000, visible: 3 },
   projects: { cardW: 300, cardH: 400, autoplayMs: 5000, visible: 3 },
