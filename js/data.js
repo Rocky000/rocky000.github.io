@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260812-logovis';
+export const siteRevision = '20260812-splash';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS

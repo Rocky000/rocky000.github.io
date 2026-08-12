@@ -27,14 +27,14 @@
 <meta name="twitter:description" content="7+ years building and operating business-critical AWS infrastructure. Kubernetes, CI/CD, Terraform, and real-time full-stack systems in production.">
 <meta name="twitter:image" content="https://rockibul.info/assets/img/portrait-hero.jpg">
 
-<link rel="icon" type="image/png" href="assets/img/favicon.png?v=20260812-logovis">
-<link rel="apple-touch-icon" href="assets/img/myLogo.png?v=20260812-logovis">
+<link rel="icon" type="image/png" href="assets/img/favicon.png?v=20260812-splash">
+<link rel="apple-touch-icon" href="assets/img/myLogo.png?v=20260812-splash">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="css/style.css?v=20260812-logovis">
+<link rel="stylesheet" href="css/style.css?v=20260812-splash">
 
 <style>
   /* Critical: cover empty shells before style.css / JS finish loading */
@@ -46,25 +46,10 @@
     place-items: center;
     background: #04060d;
   }
-  .boot-splash::before {
-    content: '';
-    position: absolute;
-    width: min(280px, 70vw);
-    height: min(280px, 70vw);
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(56, 232, 225, 0.18), transparent 68%);
-    pointer-events: none;
-  }
   .boot-splash__logo {
-    position: relative;
-    z-index: 1;
-    width: 140px;
-    height: 140px;
+    width: 112px;
+    height: 112px;
     object-fit: contain;
-    filter:
-      drop-shadow(0 0 1px rgba(232, 236, 246, 0.5))
-      drop-shadow(0 0 14px rgba(56, 232, 225, 0.35))
-      drop-shadow(0 0 28px rgba(56, 189, 248, 0.22));
   }
   @media (prefers-reduced-motion: no-preference) {
     .boot-splash__logo {
@@ -73,7 +58,7 @@
   }
   @keyframes boot-pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.95; }
+    50% { transform: scale(1.06); opacity: 0.88; }
   }
 </style>
 
@@ -140,7 +125,7 @@
 -->
 
 <div class="boot-splash" id="bootSplash" role="status" aria-live="polite" aria-label="Loading">
-  <img class="boot-splash__logo" src="assets/img/myLogo.png?v=20260812-logovis" alt="" width="140" height="140">
+  <img class="boot-splash__logo" src="assets/img/myLogo.png?v=20260812-splash" alt="" width="112" height="112">
 </div>
 
 <div class="bg-slideshow" aria-hidden="true">
@@ -391,7 +376,7 @@
 
 <script type="module">
   // siteRevision must match js/data.js → siteRevision (bump both on content deploys).
-  const siteRevision = '20260812-logovis';
+  const siteRevision = '20260812-splash';
   import(`./js/main.js?v=${siteRevision}`);
 </script>
 </body>

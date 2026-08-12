@@ -85,25 +85,10 @@ const html = `<!DOCTYPE html>
     place-items: center;
     background: #04060d;
   }
-  .boot-splash::before {
-    content: '';
-    position: absolute;
-    width: min(280px, 70vw);
-    height: min(280px, 70vw);
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(56, 232, 225, 0.18), transparent 68%);
-    pointer-events: none;
-  }
   .boot-splash__logo {
-    position: relative;
-    z-index: 1;
-    width: 140px;
-    height: 140px;
+    width: 112px;
+    height: 112px;
     object-fit: contain;
-    filter:
-      drop-shadow(0 0 1px rgba(232, 236, 246, 0.5))
-      drop-shadow(0 0 14px rgba(56, 232, 225, 0.35))
-      drop-shadow(0 0 28px rgba(56, 189, 248, 0.22));
   }
   @media (prefers-reduced-motion: no-preference) {
     .boot-splash__logo {
@@ -112,7 +97,7 @@ const html = `<!DOCTYPE html>
   }
   @keyframes boot-pulse {
     0%, 100% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.95; }
+    50% { transform: scale(1.06); opacity: 0.88; }
   }
 </style>
 
@@ -179,7 +164,7 @@ const html = `<!DOCTYPE html>
 -->
 
 <div class="boot-splash" id="bootSplash" role="status" aria-live="polite" aria-label="Loading">
-  <img class="boot-splash__logo" src="assets/img/myLogo.png?v=${siteRevision}" alt="" width="140" height="140">
+  <img class="boot-splash__logo" src="assets/img/myLogo.png?v=${siteRevision}" alt="" width="112" height="112">
 </div>
 
 <div class="bg-slideshow" aria-hidden="true">

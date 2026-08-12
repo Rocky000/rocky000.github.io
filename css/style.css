@@ -44,25 +44,10 @@
   background: #04060d;
   transition: opacity 0.45s var(--ease);
 }
-.boot-splash::before {
-  content: '';
-  position: absolute;
-  width: min(280px, 70vw);
-  height: min(280px, 70vw);
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(56, 232, 225, 0.18), transparent 68%);
-  pointer-events: none;
-}
 .boot-splash__logo {
-  position: relative;
-  z-index: 1;
-  width: 140px;
-  height: 140px;
+  width: 112px;
+  height: 112px;
   object-fit: contain;
-  filter:
-    drop-shadow(0 0 1px rgba(232, 236, 246, 0.5))
-    drop-shadow(0 0 14px rgba(56, 232, 225, 0.35))
-    drop-shadow(0 0 28px rgba(56, 189, 248, 0.22));
 }
 .boot-splash.is-done {
   opacity: 0;
@@ -75,7 +60,7 @@
 }
 @keyframes boot-pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.95; }
+  50% { transform: scale(1.06); opacity: 0.88; }
 }
 @media (prefers-reduced-motion: reduce) {
   .boot-splash { transition: opacity 0.2s linear; }
@@ -223,20 +208,13 @@ button { font: inherit; color: inherit; border: 0; background: none; cursor: poi
 }
 .nav__brand-mark {
   display: grid; place-items: center;
-  width: 36px; height: 36px; border-radius: 9px;
+  width: 34px; height: 34px;
   overflow: hidden; flex: none;
-  padding: 3px;
-  border: 1px solid rgba(56, 232, 225, 0.28);
-  background: #121826;
-  box-shadow: 0 0 0 1px rgba(232, 236, 246, 0.06), 0 0 16px rgba(56, 232, 225, 0.12);
 }
 .nav__brand-mark img {
   width: 100%; height: 100%;
   object-fit: contain;
   display: block;
-  filter:
-    drop-shadow(0 0 1px rgba(232, 236, 246, 0.45))
-    drop-shadow(0 0 10px rgba(56, 232, 225, 0.28));
 }
 .nav__brand-text {
   font-size: 1.02rem; letter-spacing: -.01em;
