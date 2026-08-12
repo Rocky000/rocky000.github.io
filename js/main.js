@@ -449,6 +449,27 @@ function initHero() {
 
 /* ================================================================= boot === */
 
+function dismissSplash() {
+  document.documentElement.classList.add('is-booted');
+  const splash = document.getElementById('bootSplash');
+  if (!splash) return;
+
+  const remove = () => splash.remove();
+  splash.classList.add('is-done');
+
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    remove();
+  };
+
+  splash.addEventListener('transitionend', (e) => {
+    if (e.propertyName === 'opacity') finish();
+  });
+  setTimeout(finish, 700);
+}
+
 async function boot() {
   // Prefer the revision stamped on this main.js URL (?v=...). Stable across reloads
   // so CDNs/WAFs can cache modules; bump siteRevision in data.js when content changes.
@@ -473,8 +494,9 @@ async function boot() {
     console.error('Failed to load page data.', err);
     document.body.insertAdjacentHTML(
       'afterbegin',
-      '<p style="padding:2rem;color:#fff;font-family:sans-serif">Could not load page data. Soft-refresh or check that <code>js/data.js</code> is reachable.</p>',
+      '<p style="padding:2rem;color:#fff;font-family:sans-serif;position:relative;z-index:10000">Could not load page data. Soft-refresh or check that <code>js/data.js</code> is reachable.</p>',
     );
+    dismissSplash();
     return;
   }
 
@@ -495,6 +517,8 @@ async function boot() {
 
   const { initBgSlideshow } = await import(`./bg-slideshow.js?v=${rev}`);
   initBgSlideshow(bgSlideshow, { reducedMotion: prefersReducedMotion });
+
+  dismissSplash();
 }
 
 if (document.readyState === 'loading') {

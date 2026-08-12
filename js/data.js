@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260809-inline';
+export const siteRevision = '20260812-logovis';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
