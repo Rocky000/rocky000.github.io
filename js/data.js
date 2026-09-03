@@ -101,8 +101,8 @@ export const socials = [
   {
     id: 'youtube',
     label: 'YouTube',
-    handle: '@alvrocky',
-    url: 'https://www.youtube.com/@alvrocky',
+    handle: '@rockibulislamkhan',
+    url: 'https://www.youtube.com/@rockibulislamkhan',
   },
 ];
 

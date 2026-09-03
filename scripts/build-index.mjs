@@ -132,7 +132,7 @@ const html = `<!DOCTYPE html>
         "https://www.linkedin.com/in/rocky7139",
         "https://github.com/rocky000",
         "https://www.facebook.com/rockibulislamkhan",
-        "https://www.youtube.com/@alvrocky"
+        "https://www.youtube.com/@rockibulislamkhan"
       ]
     },
     {
