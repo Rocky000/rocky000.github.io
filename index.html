@@ -27,15 +27,15 @@
 <meta name="twitter:description" content="7+ years building and operating business-critical AWS infrastructure. Kubernetes, CI/CD, Terraform, and real-time full-stack systems in production.">
 <meta name="twitter:image" content="https://rockibul.info/assets/img/portrait-hero.jpg">
 
-<link rel="icon" type="image/png" href="assets/img/favicon.png?v=20260904-section-notes">
-<link rel="apple-touch-icon" href="assets/img/myLogo.png?v=20260904-section-notes">
+<link rel="icon" type="image/png" href="assets/img/favicon.png?v=20260904-hero-name-break">
+<link rel="apple-touch-icon" href="assets/img/myLogo.png?v=20260904-hero-name-break">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
-<link rel="stylesheet" href="css/style.css?v=20260904-section-notes">
+<link rel="stylesheet" href="css/style.css?v=20260904-hero-name-break">
 
 <style>
   /* Critical: cover empty shells before style.css / JS finish loading */
@@ -143,7 +143,7 @@
 
 <div class="boot-splash" id="bootSplash" role="status" aria-live="polite" aria-label="Loading">
   <div class="boot-splash__inner">
-    <img class="boot-splash__logo" src="assets/img/myLogo.png?v=20260904-section-notes" alt="" width="112" height="112">
+    <img class="boot-splash__logo" src="assets/img/myLogo.png?v=20260904-hero-name-break" alt="" width="112" height="112">
     <p class="boot-splash__name">Rockibul Islam Khan</p>
   </div>
 </div>
@@ -272,14 +272,10 @@
 
 <main>
 <section class="hero" id="home">
-  <div class="hero-media" aria-hidden="true">
-    <div class="hero-media__slide is-active" data-slide="a"></div>
-    <div class="hero-media__slide" data-slide="b"></div>
-    <div class="hero-media__veil"></div>
-    <div class="hero-media__fallback">
-      <img src="assets/img/myLogo.png" alt="" width="160" height="160">
-    </div>
-  </div>
+  <div class="hero-stage" aria-hidden="true"></div>
+  <figure class="hero-portrait">
+    <img id="heroPortrait" src="" alt="" decoding="async" fetchpriority="high">
+  </figure>
   <div class="grain" aria-hidden="true"></div>
   <div class="hero__inner">
     <div class="hero__copy">
@@ -399,7 +395,7 @@
 
 <script type="module">
   // siteRevision must match js/data.js → siteRevision (bump both on content deploys).
-  const siteRevision = '20260904-section-notes';
+  const siteRevision = '20260904-hero-name-break';
   import(`./js/main.js?v=${siteRevision}`);
 </script>
 </body>

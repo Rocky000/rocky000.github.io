@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260904-section-notes';
+export const siteRevision = '20260904-hero-name-break';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
@@ -78,6 +78,12 @@ export const profile = {
   lead: 'I design, ship, and operate AWS platforms for healthcare and restaurant SaaS — Kubernetes, CI/CD, Terraform, and real-time systems I owned end to end.',
   summary:
     'Senior DevOps & Cloud Platform Engineer with 7+ years of experience building and operating business-critical infrastructure on AWS for healthcare and restaurant SaaS platforms. Beyond infrastructure, brings rare full-stack capability — having sole-owned the design, development, and production deployment of real-time systems (WebSocket/Webhook) and admin tooling for restaurant POS platforms. Deep expertise in Kubernetes (EKS), CI/CD automation (Jenkins, GitHub Actions), Infrastructure as Code (Terraform, Ansible), serverless architecture (AWS Lambda, EventBridge), and automated code quality pipelines (ESLint, SonarQube, CodeQL). Proven track record of driving cloud cost optimization, enforcing HIPAA compliance, and delivering systems that are live in production across 30+ restaurant brands.',
+};
+
+/** Foreground cutout standing on the hero stage. */
+export const heroPortrait = {
+  src: 'assets/img/portrait-cutout.png',
+  alt: 'Md. Rockibul Islam Khan',
 };
 
 /** Cycling typewriter lines in the hero. */
@@ -375,28 +381,6 @@ export const awards = [
       'Real-Time Smart Traffic Management System — recognized as best project at the annual AIUB Computer Engineering symposium.',
   },
 ];
-
-/* --------------------------------------------------------------------------
-   PAGE BACKGROUND SLIDESHOW
-   Full-viewport photos only (no foreground photo UI). Scenic shots; portraits
-   intentionally omitted. Edit `images` / timing here to change the rotation.
-   -------------------------------------------------------------------------- */
-export const bgSlideshow = {
-  intervalMs: 8000,
-  crossfadeMs: 1400,
-  images: [
-    'assets/img/fjord-bow.jpg',
-    'assets/img/oslo-waterfront.jpg',
-    'assets/img/team-gokart.jpg',
-    'assets/img/sea-breeze.jpg',
-    'assets/img/oslo-night-square.jpg',
-    'assets/img/boat-deck.jpg',
-    'assets/img/oslo-street.jpg',
-    'assets/img/train-window.jpg',
-    'assets/img/boat-relax.jpg',
-    'assets/img/lounge-armchair.jpg',
-  ],
-};
 
 export const nav = [
   { id: 'home', label: 'Home' },

@@ -1,4 +1,3 @@
-import { initBgSlideshow } from './bg-slideshow.js';
 import { initMotion, typeRoles } from './motion.js';
 
 let sections;
@@ -11,7 +10,7 @@ let projects;
 let education;
 let certifications;
 let awards;
-let bgSlideshow;
+let heroPortrait;
 let navItems;
 let heroRoles;
 
@@ -29,6 +28,11 @@ function renderHero() {
   const typeEl = $('#heroType');
   if (typeEl) typeEl.textContent = heroRoles?.[0] || profile.title;
   $('#heroTagline').textContent = profile.tagline;
+  const portrait = $('#heroPortrait');
+  if (portrait && heroPortrait?.src) {
+    portrait.src = heroPortrait.src;
+    portrait.alt = heroPortrait.alt || profile.name;
+  }
   const lead = $('#aboutLead');
   if (lead) lead.textContent = profile.lead || profile.tagline;
   const aboutSummary = $('#aboutSummary');
@@ -662,7 +666,7 @@ async function boot() {
     education = data.education;
     certifications = data.certifications;
     awards = data.awards;
-    bgSlideshow = data.bgSlideshow;
+    heroPortrait = data.heroPortrait;
     navItems = data.nav;
     heroRoles = data.heroRoles || [data.profile.title];
   } catch (err) {
@@ -692,11 +696,6 @@ async function boot() {
   initCounters();
   initCommandPalette();
   typeRoles($('#heroType'), heroRoles, prefersReducedMotion);
-
-  initBgSlideshow(bgSlideshow, {
-    reducedMotion: prefersReducedMotion,
-    rootSelector: '.hero-media',
-  });
 
   dismissSplash();
 }
