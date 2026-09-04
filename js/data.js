@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260904-contact-name';
+export const siteRevision = '20260904-section-notes';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
@@ -23,7 +23,7 @@ export const sections = {
   skills: {
     kicker: 'My Skills',
     title: 'The stack I <span class="accent">run in production</span>',
-    note: 'Travels continuously — four categories at a time on desktop.',
+    note: 'Cloud, containers, CI/CD, and the tools I keep production running with.',
   },
   experience: {
     kicker: 'My Experience',
@@ -33,7 +33,7 @@ export const sections = {
   projects: {
     kicker: 'My Selected Work',
     title: 'Things I built <span class="accent">end to end</span>',
-    note: 'Travels continuously — four at a time on desktop.',
+    note: 'Realtime POS, CI/CD, observability, and recovery — systems I owned end to end.',
   },
   credentials: {
     kicker: 'My Credentials',
