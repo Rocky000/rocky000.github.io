@@ -1,6 +1,13 @@
 <section class="hero" id="home">
-  <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
-  <div class="hero__veil" aria-hidden="true"></div>
+  <div class="hero-media" aria-hidden="true">
+    <div class="hero-media__slide is-active" data-slide="a"></div>
+    <div class="hero-media__slide" data-slide="b"></div>
+    <div class="hero-media__veil"></div>
+    <div class="hero-media__fallback">
+      <img src="assets/img/myLogo.png" alt="" width="160" height="160">
+    </div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
   <div class="hero__inner">
     <div class="hero__copy">
       <p class="hero__eyebrow">
@@ -8,22 +15,23 @@
         <span id="heroLocation"></span>
       </p>
       <h1 class="hero__name" id="heroName"></h1>
-      <p class="hero__title" id="heroTitle"></p>
+      <p class="hero__role">
+        <span class="hero__role-label">I am a</span>
+        <span class="hero__type" id="heroType" aria-live="polite"></span>
+        <span class="hero__caret" aria-hidden="true"></span>
+      </p>
       <p class="hero__tagline" id="heroTagline"></p>
       <div class="hero__actions">
         <a class="btn btn--primary" href="#projects">
-          View my work <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg>
+          See the work <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg>
         </a>
-        <!-- Resume (disabled): uncomment this block to show "View resume" again.
-        <a class="btn btn--ghost" id="heroResume" href="#" target="_blank" rel="noopener noreferrer">
-          <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg> View resume
-        </a>
-        -->
+        <a class="btn btn--ghost" href="#contact">Let’s talk</a>
       </div>
-      <ul class="hero__stats" id="heroStats"></ul>
     </div>
+    <ul class="hero__stats" id="heroStats"></ul>
   </div>
   <a class="hero__scroll" href="#about" aria-label="Scroll to about">
     <span class="hero__mouse" aria-hidden="true"></span>
+    <span>Scroll</span>
   </a>
 </section>

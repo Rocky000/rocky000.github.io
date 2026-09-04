@@ -1,5 +1,12 @@
 <a class="skip-link" href="#about">Skip to content</a>
 
+<div class="progress" id="scrollProgress" aria-hidden="true"></div>
+
+<div class="cursor" id="cursor" aria-hidden="true">
+  <span class="cursor__dot"></span>
+  <span class="cursor__ring"></span>
+</div>
+
 <header class="nav" id="nav">
   <div class="nav__inner">
     <a class="nav__brand" href="#home">
@@ -9,10 +16,19 @@
       <span class="nav__brand-text">Rockibul<span class="accent">.</span></span>
     </a>
     <nav class="nav__links" id="navLinks" aria-label="Primary"></nav>
+    <a class="nav__cta" id="navEmail" href="mailto:rockibul.islam20@gmail.com">Email</a>
     <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 
-<aside class="rail" id="socialRail" aria-label="Social links"></aside>
+<div class="cmd" id="cmdPalette" hidden>
+  <div class="cmd__backdrop" data-cmd-close></div>
+  <div class="cmd__dialog" role="dialog" aria-modal="true" aria-labelledby="cmdTitle">
+    <p class="cmd__kicker" id="cmdTitle">Command palette</p>
+    <input class="cmd__input" id="cmdInput" type="search" placeholder="Jump, copy, open…" autocomplete="off" spellcheck="false">
+    <ul class="cmd__list" id="cmdList"></ul>
+    <p class="cmd__hint">↑↓ navigate · ↵ run · esc close</p>
+  </div>
+</div>

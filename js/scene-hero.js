@@ -80,7 +80,7 @@ export function initHeroScene(canvas) {
     blending: THREE.AdditiveBlending,
     uniforms: {
       uTime: { value: 0 },
-      uSize: { value: (isMobile ? 42 : 58) * Math.min(window.devicePixelRatio, 2) },
+      uSize: { value: (isMobile ? 52 : 72) * Math.min(window.devicePixelRatio, 2) },
     },
     vertexShader: /* glsl */ `
       attribute float aScale;
@@ -126,7 +126,7 @@ export function initHeroScene(canvas) {
   const shellGeo = new THREE.IcosahedronGeometry(9.5, 1);
   const shell = new THREE.LineSegments(
     new THREE.WireframeGeometry(shellGeo),
-    new THREE.LineBasicMaterial({ color: 0x38e8e1, transparent: true, opacity: 0.38 }),
+    new THREE.LineBasicMaterial({ color: 0x38e8e1, transparent: true, opacity: 0.55 }),
   );
   core.add(shell);
 
@@ -182,19 +182,37 @@ export function initHeroScene(canvas) {
 
   /* ------------------------------------------------------------ resize --- */
 
+  let render = () => {};
+
   const resize = () => {
-    const w = canvas.clientWidth || window.innerWidth;
-    const h = canvas.clientHeight || window.innerHeight;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const parent = canvas.parentElement;
+    const rect = parent?.getBoundingClientRect?.() || { width: 0, height: 0 };
+    let w = Math.floor(rect.width || canvas.clientWidth || 0);
+    let h = Math.floor(rect.height || canvas.clientHeight || 0);
+    if (w < 32) w = window.innerWidth || 1;
+    if (h < 32) h = window.innerHeight || 1;
+    w = Math.max(1, w);
+    h = Math.max(1, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.setSize(w, h, false);
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
     camera.aspect = w / h;
     // Pull the core toward centre on narrow screens so it is not cropped.
     core.position.x = w < 900 ? 0 : 11;
     camera.updateProjectionMatrix();
+    if (reduceMotion) render();
   };
   resize();
+  // Remeasure after layout settles (splash / fonts / late CSS).
+  requestAnimationFrame(() => {
+    resize();
+    requestAnimationFrame(resize);
+  });
+  window.addEventListener('resize', resize, { passive: true });
 
-  const resizeObserver = new ResizeObserver(resize);
+  const resizeObserver = new ResizeObserver(() => resize());
+  if (canvas.parentElement) resizeObserver.observe(canvas.parentElement);
   resizeObserver.observe(canvas);
 
   /* ------------------------------------------------------------- loop --- */
@@ -203,7 +221,7 @@ export function initHeroScene(canvas) {
   let frame = null;
   let running = false;
 
-  const render = () => {
+  render = () => {
     const t = clock.getElapsedTime();
 
     pointer.x += (target.x - pointer.x) * 0.045;
@@ -273,6 +291,7 @@ export function initHeroScene(canvas) {
       stop();
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', onVisibility);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
@@ -281,5 +300,6 @@ export function initHeroScene(canvas) {
       shellGeo.dispose();
       renderer.dispose();
     },
+    resize,
   };
 }

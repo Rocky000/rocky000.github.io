@@ -1,8 +1,7 @@
-import { initDeck } from './carousel-3d.js';
+import { initBgSlideshow } from './bg-slideshow.js';
+import { initMotion, typeRoles } from './motion.js';
 
-/* Data is loaded in boot() using siteRevision from the main.js URL (?v=...). */
 let sections;
-let deckSettings;
 let profile;
 let socials;
 let stats;
@@ -14,6 +13,7 @@ let certifications;
 let awards;
 let bgSlideshow;
 let navItems;
+let heroRoles;
 
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
@@ -23,15 +23,23 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 const icon = (id, cls = 'icon') =>
   `<svg class="${cls}" aria-hidden="true"><use href="#i-${id}"></use></svg>`;
 
-/* ============================================================ rendering === */
-
 function renderHero() {
   $('#heroLocation').textContent = `Available from ${profile.location}`;
   $('#heroName').textContent = profile.name;
-  $('#heroTitle').textContent = profile.title;
+  const typeEl = $('#heroType');
+  if (typeEl) typeEl.textContent = heroRoles?.[0] || profile.title;
   $('#heroTagline').textContent = profile.tagline;
-  $('#aboutSummary').textContent = profile.summary;
+  const lead = $('#aboutLead');
+  if (lead) lead.textContent = profile.lead || profile.tagline;
+  const aboutSummary = $('#aboutSummary');
+  if (aboutSummary) {
+    // Keep a tighter on-page summary; full resume prose stays in data.js.
+    aboutSummary.textContent = profile.summary;
+  }
   $('#footerName').textContent = `© ${new Date().getFullYear()} ${profile.name}`;
+
+  const navEmail = $('#navEmail');
+  if (navEmail) navEmail.href = `mailto:${profile.email}`;
 
   wireResumeLinks();
 
@@ -46,7 +54,6 @@ function renderHero() {
     .join('');
 }
 
-/** Preview opens the PDF in a new tab; download uses a blob so browsers actually save the file. */
 function wireResumeLinks() {
   const resumeUrl = `${profile.resume}?v=${profile.resumeVersion ?? '1'}`;
   const fileName = 'Rockibul_Islam_Khan_Resume.pdf';
@@ -91,13 +98,6 @@ function renderNav() {
 }
 
 function renderSocials() {
-  $('#socialRail').innerHTML = socials
-    .map(
-      (s) =>
-        `<a class="rail__link" href="${s.url}" target="_blank" rel="noopener noreferrer" aria-label="${s.label}" title="${s.label}">${icon(s.id)}</a>`,
-    )
-    .join('');
-
   $('#footerSocials').innerHTML = socials
     .map(
       (s) =>
@@ -125,11 +125,10 @@ function renderAboutFacts() {
     ['Also does', 'Full-stack real-time systems'],
   ];
   $('#aboutFacts').innerHTML = facts
-    .map(([dt, dd]) => `<div><dt>${dt}</dt><dd>${dd}</dd></div>`)
+    .map(([dt, dd]) => `<div class="about__fact"><dt>${dt}</dt><dd>${dd}</dd></div>`)
     .join('');
 }
 
-/** Fills every `data-section-head` header from `sections` in data.js. */
 function renderSectionHeads() {
   $$('[data-section-head]').forEach((head) => {
     const s = sections[head.dataset.sectionHead];
@@ -141,123 +140,228 @@ function renderSectionHeads() {
   });
 }
 
-/* ================================================================ decks === */
+function marqueeItems() {
+  const seen = new Set();
+  const out = [];
+  skills.forEach((s) => {
+    s.items.forEach((item) => {
+      if (seen.has(item)) return;
+      seen.add(item);
+      out.push(item);
+    });
+  });
+  return out;
+}
 
-const deckCards = {
-  skills: (s) => `
-    <div class="card card--skill">
-      <div class="card__icon">${icon(s.icon)}</div>
-      <h3 class="card__title">${s.category}</h3>
+function fillMarqueeTrack(el, items) {
+  if (!el || !items.length) return;
+  el.style.animation = 'none';
+  el.innerHTML = [...items, ...items]
+    .map((t) => `<span class="marquee__item">${t}</span>`)
+    .join('');
+}
+
+/**
+ * JS-driven continuous tickers.
+ * direction > 0 → content travels left → right
+ * direction < 0 → content travels right → left
+ */
+function startMarquee(el, direction, speedPx = 50) {
+  if (!el) return;
+  el.style.animation = 'none';
+  el.style.willChange = 'transform';
+
+  let offset = 0;
+  let half = 0;
+  let raf = null;
+  let last = 0;
+  let running = false;
+
+  const measure = () => {
+    half = el.scrollWidth / 2;
+    if (half <= 0) return;
+    // Keep offset in (-half, 0] for seamless loop with doubled content.
+    offset = ((offset % half) + half) % half - half;
+    el.style.transform = `translate3d(${offset}px, 0, 0)`;
+  };
+
+  const tick = (now) => {
+    if (!running) return;
+    if (!last) last = now;
+    const dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+
+    if (half > 0) {
+      offset += direction * speedPx * dt;
+      if (offset <= -half) offset += half;
+      if (offset > 0) offset -= half;
+      el.style.transform = `translate3d(${offset}px, 0, 0)`;
+    }
+    raf = requestAnimationFrame(tick);
+  };
+
+  const start = () => {
+    if (running || document.hidden) return;
+    measure();
+    running = true;
+    last = 0;
+    raf = requestAnimationFrame(tick);
+  };
+
+  const stop = () => {
+    running = false;
+    if (raf) cancelAnimationFrame(raf);
+    raf = null;
+    last = 0;
+  };
+
+  measure();
+  // Defer one frame so layout settles after fonts/images.
+  requestAnimationFrame(() => {
+    measure();
+    start();
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) stop();
+    else start();
+  });
+  window.addEventListener('resize', () => {
+    measure();
+  }, { passive: true });
+}
+
+function skillCardHtml(s) {
+  return `
+    <article class="skill-card">
+      <div class="skill-card__icon">${icon(s.icon)}</div>
+      <h3 class="skill-card__title">${s.category}</h3>
       <ul class="chips">
         ${s.items.map((i) => `<li class="chip">${i}</li>`).join('')}
       </ul>
-    </div>`,
+    </article>`;
+}
 
-  experience: (job) => `
-    <div class="card job${job.current ? ' job--current' : ''}">
-      <div class="job__head">
-        <h3 class="job__role">${job.role}</h3>
-        <span class="job__period">${job.period}</span>
-      </div>
-      <p class="job__company"><strong>${job.company}</strong> · ${job.location}</p>
-      <ul class="job__bullets deck__scroll">
-        ${job.bullets.map((b) => `<li>${b}</li>`).join('')}
-      </ul>
-    </div>`,
+function renderSkills() {
+  const items = marqueeItems();
+  const trackA = $('#skillsMarqueeTrack');
+  const trackB = $('#skillsMarqueeTrackB');
+  fillMarqueeTrack(trackA, items);
+  const rotated = [
+    ...items.slice(Math.floor(items.length / 3)),
+    ...items.slice(0, Math.floor(items.length / 3)),
+  ];
+  fillMarqueeTrack(trackB, rotated);
 
-  projects: (p, i) => `
-    <div class="card project${p.featured ? ' project--featured' : ''}">
-      <div class="project__top">
-        <span class="project__badge">${p.badge}</span>
-        <span class="project__num">${String(i + 1).padStart(2, '0')}</span>
+  // Both ticker rows: right → left
+  startMarquee(trackA, -1, 52);
+  startMarquee(trackB, -1, 46);
+
+  // Continuous skill-card strip (one card in view, smooth R→L)
+  const stripTrack = $('#skillsStripTrack');
+  if (stripTrack && skills.length) {
+    const cards = skills.map(skillCardHtml).join('');
+    stripTrack.innerHTML = cards + cards;
+    stripTrack.style.animation = 'none';
+    startMarquee(stripTrack, -1, 52);
+  }
+}
+
+function renderExperience() {
+  $('#experienceList').innerHTML = experience
+    .map(
+      (job) => `
+      <article class="exp-job${job.current ? ' is-current' : ''} reveal">
+        <header class="exp-job__head">
+          ${job.current ? '<span class="exp-job__now">Now</span>' : ''}
+          <h3 class="exp-job__role">${job.role}</h3>
+          <p class="exp-job__company">${job.company}</p>
+          <p class="exp-job__meta">${job.location} · ${job.period}</p>
+        </header>
+        <ul class="exp-job__bullets">
+          ${job.bullets.map((b) => `<li>${b}</li>`).join('')}
+        </ul>
+      </article>`,
+    )
+    .join('');
+}
+
+function projectCardHtml(p, i) {
+  return `
+    <article class="project-card${p.featured ? ' is-featured' : ''}">
+      <div class="project-card__top">
+        <span class="project-card__badge">${p.badge}</span>
+        <span class="project-card__num">${String(i + 1).padStart(2, '0')}</span>
       </div>
-      <h3 class="project__title">${p.title}</h3>
-      <p class="project__summary deck__scroll">${p.summary}</p>
+      <h3 class="project-card__title">${p.title}</h3>
+      <p class="project-card__summary">${p.summary}</p>
       <ul class="chips">
         ${p.tags.map((t) => `<li class="chip">${t}</li>`).join('')}
       </ul>
-    </div>`,
-
-  credentials: (c) => `
-    <div class="cred">
-      <div class="cred__icon">${icon(c.icon)}</div>
-      <p class="cred__label">${c.label}</p>
-      <div class="deck__scroll">${c.body}</div>
-    </div>`,
-};
-
-/** Education, certifications and honors as three deck records. */
-function credentialItems() {
-  return [
-    {
-      icon: 'cap',
-      label: 'Education',
-      body: `
-        <ul class="cred__list">
-          ${education.items
-            .map(
-              (e) => `
-            <li>
-              <span class="cred__dot" aria-hidden="true"></span>
-              <span>${e.degree}<br><span class="cred__code">${e.school} · ${e.period}</span></span>
-            </li>`,
-            )
-            .join('')}
-        </ul>`,
-    },
-    {
-      icon: 'badge',
-      label: `Certifications · ${certifications.status}`,
-      body: `
-        <ul class="cred__list">
-          ${certifications.items
-            .map(
-              (c) => `
-            <li>
-              <span class="cred__dot" aria-hidden="true"></span>
-              <span>${c.name}<br><span class="cred__code">${c.code} · ${c.state}</span></span>
-            </li>`,
-            )
-            .join('')}
-        </ul>`,
-    },
-    {
-      icon: 'trophy',
-      label: 'Honors &amp; awards',
-      body: awards
-        .map(
-          (a) => `
-        <h3 class="cred__title">${a.title}</h3>
-        <p class="cred__sub">${a.detail}</p>
-        <p class="cred__period">${a.date}</p>`,
-        )
-        .join(''),
-    },
-  ];
+    </article>`;
 }
 
-function initDecks() {
-  const settingsFor = (key) => ({ ...deckSettings.default, ...(deckSettings[key] ?? {}) });
+function renderProjects() {
+  const track = $('#projectsStripTrack');
+  if (!track || !projects.length) return;
+  const cards = projects.map((p, i) => projectCardHtml(p, i)).join('');
+  track.innerHTML = cards + cards;
+  track.style.animation = 'none';
+  startMarquee(track, -1, 52);
+}
 
-  const decks = [
-    { id: 'skillsDeck', key: 'skills', items: skills, label: 'skill' },
-    { id: 'experienceDeck', key: 'experience', items: experience, label: 'role' },
-    { id: 'projectsDeck', key: 'projects', items: projects, label: 'project' },
-    { id: 'credentialsDeck', key: 'credentials', items: credentialItems(), label: 'credential' },
-  ];
-
-  decks.forEach(({ id, key, items, label }) => {
-    initDeck({
-      root: document.getElementById(id),
-      items,
-      renderCard: deckCards[key],
-      settings: settingsFor(key),
-      label,
-    });
-  });
+function renderCredentials() {
+  $('#credentialsStrip').innerHTML = `
+    <article class="cred-card reveal">
+      <div class="cred-card__icon">${icon('cap')}</div>
+      <h3>Education</h3>
+      <ul class="cred-card__list">
+        ${education.items
+          .map(
+            (e) => `
+          <li>
+            <strong>${e.degree}</strong>
+            <span>${e.school} · ${e.period}</span>
+          </li>`,
+          )
+          .join('')}
+      </ul>
+    </article>
+    <article class="cred-card reveal">
+      <div class="cred-card__icon">${icon('badge')}</div>
+      <h3>Certifications · ${certifications.status}</h3>
+      <ul class="cred-card__list">
+        ${certifications.items
+          .map(
+            (c) => `
+          <li>
+            <strong>${c.name}</strong>
+            <span>${c.code} · ${c.state}</span>
+          </li>`,
+          )
+          .join('')}
+      </ul>
+    </article>
+    <article class="cred-card reveal">
+      <div class="cred-card__icon">${icon('trophy')}</div>
+      <h3>Honors &amp; awards</h3>
+      ${awards
+        .map(
+          (a) => `
+        <p class="cred-card__award">${a.title}</p>
+        <p class="cred-card__detail">${a.detail}</p>
+        <p class="cred-card__date">${a.date}</p>`,
+        )
+        .join('')}
+    </article>`;
 }
 
 function renderContact() {
+  const mail = $('#contactEmail');
+  const mailText = $('#contactEmailText');
+  if (mail) mail.href = `mailto:${profile.email}`;
+  if (mailText) mailText.textContent = profile.name;
+
   const entries = [
     { href: `mailto:${profile.email}`, icon: 'mail', text: profile.email },
     { href: `tel:${profile.phoneHref}`, icon: 'phone', text: profile.phone },
@@ -274,9 +378,7 @@ function renderContact() {
     .join('');
 }
 
-/* ========================================================= interactions === */
-
-function initNav() {
+function initNav(lenis) {
   const nav = $('#nav');
   const links = $('#navLinks');
   const toggle = $('#navToggle');
@@ -297,19 +399,30 @@ function initNav() {
     toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
   });
 
-  links.addEventListener('click', (e) => {
-    if (e.target.closest('.nav__link')) closeMenu();
+  const scrollToHash = (hash) => {
+    const el = document.querySelector(hash);
+    if (!el) return;
+    if (lenis) lenis.scrollTo(el, { offset: -72 });
+    else el.scrollIntoView({ behavior: prefersReducedMotion ? 'auto' : 'smooth' });
+  };
+
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a) return;
+    const hash = a.getAttribute('href');
+    if (!hash || hash === '#') return;
+    const target = document.querySelector(hash);
+    if (!target) return;
+    e.preventDefault();
+    closeMenu();
+    scrollToHash(hash);
   });
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMenu();
   });
 
-  // Scroll spy
-  const sectionEls = navItems
-    .map((n) => document.getElementById(n.id))
-    .filter(Boolean);
-
+  const sectionEls = navItems.map((n) => document.getElementById(n.id)).filter(Boolean);
   const spy = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -342,7 +455,6 @@ function initReveal() {
     { rootMargin: '0px 0px -8% 0px', threshold: 0.08 },
   );
 
-  // Stagger siblings inside the same grid for a nicer cascade.
   items.forEach((el) => {
     const siblings = el.parentElement ? Array.from(el.parentElement.children) : [];
     const index = siblings.indexOf(el);
@@ -392,62 +504,127 @@ function initCounters() {
   nodes.forEach((n) => observer.observe(n));
 }
 
-/** Pointer-following 3D tilt for interactive cards. */
-function initTilt() {
-  if (prefersReducedMotion || window.matchMedia('(pointer: coarse)').matches) return;
+function initCommandPalette() {
+  const root = $('#cmdPalette');
+  const input = $('#cmdInput');
+  const list = $('#cmdList');
+  if (!root || !input || !list) return;
 
-  const apply = (el, maxTilt) => {
-    let raf = null;
+  const actions = [
+    ...navItems.map((n) => ({
+      id: `go-${n.id}`,
+      label: `Go to ${n.label}`,
+      hint: `#${n.id}`,
+      run: () => document.querySelector(`a[href="#${n.id}"]`)?.click(),
+    })),
+    {
+      id: 'copy-email',
+      label: 'Copy email',
+      hint: profile.email,
+      run: async () => {
+        try {
+          await navigator.clipboard.writeText(profile.email);
+        } catch {
+          window.location.href = `mailto:${profile.email}`;
+        }
+      },
+    },
+    ...socials.map((s) => ({
+      id: `open-${s.id}`,
+      label: `Open ${s.label}`,
+      hint: s.handle,
+      run: () => window.open(s.url, '_blank', 'noopener,noreferrer'),
+    })),
+  ];
 
-    const move = (e) => {
-      const rect = el.getBoundingClientRect();
-      const px = (e.clientX - rect.left) / rect.width;
-      const py = (e.clientY - rect.top) / rect.height;
+  let filtered = actions;
+  let active = 0;
 
-      el.style.setProperty('--mx', `${px * 100}%`);
-      el.style.setProperty('--my', `${py * 100}%`);
-
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = null;
-        const rx = (0.5 - py) * maxTilt;
-        const ry = (px - 0.5) * maxTilt;
-        el.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
-      });
-    };
-
-    const reset = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = null;
-      el.style.transform = '';
-    };
-
-    el.addEventListener('pointermove', move);
-    el.addEventListener('pointerleave', reset);
-    el.addEventListener('blur', reset, true);
+  const paint = () => {
+    list.innerHTML = filtered
+      .map(
+        (a, i) => `
+        <li>
+          <button class="cmd__item${i === active ? ' is-active' : ''}" type="button" data-id="${a.id}">
+            <span>${a.label}</span>
+            <span class="cmd__meta">${a.hint}</span>
+          </button>
+        </li>`,
+      )
+      .join('');
   };
 
-  $$('.tilt').forEach((el) => apply(el, 9));
+  const open = () => {
+    root.hidden = false;
+    input.value = '';
+    filtered = actions;
+    active = 0;
+    paint();
+    input.focus();
+  };
+
+  const close = () => {
+    root.hidden = true;
+    input.blur();
+  };
+
+  const run = (id) => {
+    const action = actions.find((a) => a.id === id) || filtered[active];
+    close();
+    action?.run();
+  };
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    filtered = actions.filter(
+      (a) => a.label.toLowerCase().includes(q) || a.hint.toLowerCase().includes(q),
+    );
+    active = 0;
+    paint();
+  });
+
+  list.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-id]');
+    if (btn) run(btn.dataset.id);
+  });
+
+  root.addEventListener('click', (e) => {
+    if (e.target.closest('[data-cmd-close]')) close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const typing =
+      e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+    const metaK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
+    const slash = e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey;
+
+    if (metaK || slash) {
+      e.preventDefault();
+      if (root.hidden) open();
+      else close();
+      return;
+    }
+    if (root.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+    }
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      active = Math.min(filtered.length - 1, active + 1);
+      paint();
+    }
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      active = Math.max(0, active - 1);
+      paint();
+    }
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filtered[active]) run(filtered[active].id);
+    }
+  });
 }
-
-/* ================================================================= hero === */
-
-function initHero() {
-  const canvas = $('#heroCanvas');
-  const hero = $('#home');
-
-  import('./scene-hero.js')
-    .then(({ initHeroScene }) => {
-      const scene = initHeroScene(canvas);
-      if (!scene) hero.classList.add('no-webgl');
-    })
-    .catch((err) => {
-      console.warn('Hero: falling back to CSS gradient.', err);
-      hero.classList.add('no-webgl');
-    });
-}
-
-/* ================================================================= boot === */
 
 function dismissSplash() {
   document.documentElement.classList.add('is-booted');
@@ -467,18 +644,15 @@ function dismissSplash() {
   splash.addEventListener('transitionend', (e) => {
     if (e.propertyName === 'opacity') finish();
   });
-  setTimeout(finish, 700);
+  setTimeout(finish, prefersReducedMotion ? 80 : 900);
 }
 
 async function boot() {
-  // Prefer the revision stamped on this main.js URL (?v=...). Stable across reloads
-  // so CDNs/WAFs can cache modules; bump siteRevision in data.js when content changes.
   const rev =
     new URL(import.meta.url).searchParams.get('v') || String(Date.now());
   try {
     const data = await import(`./data.js?v=${rev}`);
     sections = data.sections;
-    deckSettings = data.deckSettings;
     profile = data.profile;
     socials = data.socials;
     stats = data.stats;
@@ -490,6 +664,7 @@ async function boot() {
     awards = data.awards;
     bgSlideshow = data.bgSlideshow;
     navItems = data.nav;
+    heroRoles = data.heroRoles || [data.profile.title];
   } catch (err) {
     console.error('Failed to load page data.', err);
     document.body.insertAdjacentHTML(
@@ -505,18 +680,23 @@ async function boot() {
   renderHero();
   renderSocials();
   renderAboutFacts();
+  renderSkills();
+  renderExperience();
+  renderProjects();
+  renderCredentials();
   renderContact();
 
-  initDecks();
-
-  initNav();
+  const { lenis } = await initMotion({ reducedMotion: prefersReducedMotion });
+  initNav(lenis);
   initReveal();
   initCounters();
-  initTilt();
-  initHero();
+  initCommandPalette();
+  typeRoles($('#heroType'), heroRoles, prefersReducedMotion);
 
-  const { initBgSlideshow } = await import(`./bg-slideshow.js?v=${rev}`);
-  initBgSlideshow(bgSlideshow, { reducedMotion: prefersReducedMotion });
+  initBgSlideshow(bgSlideshow, {
+    reducedMotion: prefersReducedMotion,
+    rootSelector: '.hero-media',
+  });
 
   dismissSplash();
 }

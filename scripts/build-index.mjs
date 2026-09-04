@@ -71,8 +71,9 @@ const html = `<!DOCTYPE html>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
 <link rel="stylesheet" href="css/style.css?v=${siteRevision}">
 
 <style>
@@ -85,10 +86,24 @@ const html = `<!DOCTYPE html>
     place-items: center;
     background: #04060d;
   }
+  .boot-splash__inner {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+  }
   .boot-splash__logo {
     width: 112px;
     height: 112px;
     object-fit: contain;
+  }
+  .boot-splash__name {
+    margin: 0;
+    font-family: Syne, ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9aa5bd;
+    text-align: center;
   }
   @media (prefers-reduced-motion: no-preference) {
     .boot-splash__logo {
@@ -151,7 +166,9 @@ const html = `<!DOCTYPE html>
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"
+    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.7/+esm",
+    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.7/ScrollTrigger.js/+esm",
+    "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.1.20/+esm"
   }
 }
 </script>
@@ -164,13 +181,10 @@ const html = `<!DOCTYPE html>
 -->
 
 <div class="boot-splash" id="bootSplash" role="status" aria-live="polite" aria-label="Loading">
-  <img class="boot-splash__logo" src="assets/img/myLogo.png?v=${siteRevision}" alt="" width="112" height="112">
-</div>
-
-<div class="bg-slideshow" aria-hidden="true">
-  <div class="bg-slideshow__slide is-active" id="bgSlideA"></div>
-  <div class="bg-slideshow__slide" id="bgSlideB"></div>
-  <div class="bg-slideshow__veil"></div>
+  <div class="boot-splash__inner">
+    <img class="boot-splash__logo" src="assets/img/myLogo.png?v=${siteRevision}" alt="" width="112" height="112">
+    <p class="boot-splash__name">Rockibul Islam Khan</p>
+  </div>
 </div>
 
 ${joinPartials(CHROME)}

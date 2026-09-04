@@ -1,28 +1,27 @@
 /**
- * Fixed full-viewport photo background with timed crossfade.
- * Config comes from js/data.js → bgSlideshow.
+ * Scoped Ken Burns / crossfade for hero plates (not a full-page background).
  */
 
 function preload(src) {
   return new Promise((resolve) => {
     const img = new Image();
-    img.onload = () => resolve(src);
-    img.onerror = () => resolve(src);
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
     img.src = src;
   });
 }
 
 /**
  * @param {{ intervalMs: number, crossfadeMs: number, images: string[] }} config
- * @param {{ reducedMotion?: boolean }} [opts]
+ * @param {{ reducedMotion?: boolean, rootSelector?: string }} [opts]
  */
 export function initBgSlideshow(config, opts = {}) {
   const images = (config?.images ?? []).filter(Boolean);
-  const slideA = document.getElementById('bgSlideA');
-  const slideB = document.getElementById('bgSlideB');
-  const root = document.querySelector('.bg-slideshow');
+  const root = document.querySelector(opts.rootSelector || '.hero-media');
+  const slideA = root?.querySelector('[data-slide="a"]');
+  const slideB = root?.querySelector('[data-slide="b"]');
 
-  if (!slideA || !slideB || images.length === 0) return null;
+  if (!root || !slideA || !slideB) return null;
 
   const reducedMotion = Boolean(opts.reducedMotion);
   const crossfadeMs = reducedMotion
@@ -30,48 +29,72 @@ export function initBgSlideshow(config, opts = {}) {
     : Math.max(0, Number(config.crossfadeMs) || 1400);
   const intervalMs = Math.max(crossfadeMs + 500, Number(config.intervalMs) || 8000);
 
-  if (root) {
-    root.style.setProperty('--bg-crossfade', `${crossfadeMs}ms`);
-    root.classList.toggle('is-instant', reducedMotion);
-  }
+  root.style.setProperty('--bg-crossfade', `${crossfadeMs}ms`);
+  root.classList.toggle('is-instant', reducedMotion);
 
   let index = 0;
   let showingA = true;
   let timer = null;
   let stopped = false;
+  let loadedAny = false;
 
   const setBg = (el, src) => {
     el.style.backgroundImage = `url("${src}")`;
   };
 
-  setBg(slideA, images[0]);
-  slideA.classList.add('is-active');
-  slideB.classList.remove('is-active');
+  const markReady = () => {
+    if (loadedAny) return;
+    loadedAny = true;
+    root.classList.add('has-media');
+  };
 
-  if (images.length < 2) {
-    return { stop() {} };
-  }
+  const tryFirst = async () => {
+    for (let i = 0; i < images.length; i += 1) {
+      const ok = await preload(images[i]);
+      if (stopped) return;
+      if (ok) {
+        index = i;
+        setBg(slideA, images[i]);
+        slideA.classList.add('is-active');
+        slideB.classList.remove('is-active');
+        markReady();
+        return true;
+      }
+    }
+    root.classList.add('is-fallback');
+    return false;
+  };
+
+  const liveImages = () => images;
 
   const advance = async () => {
-    const next = (index + 1) % images.length;
-    await preload(images[next]);
-    if (stopped) return;
+    if (liveImages().length < 2) return;
+    let next = (index + 1) % images.length;
+    let attempts = 0;
+    while (attempts < images.length) {
+      const ok = await preload(images[next]);
+      if (stopped) return;
+      if (ok) break;
+      next = (next + 1) % images.length;
+      attempts += 1;
+      if (attempts >= images.length) return;
+    }
 
     const incoming = showingA ? slideB : slideA;
     const outgoing = showingA ? slideA : slideB;
 
     setBg(incoming, images[next]);
-    // Force a reflow so the browser applies the new background before fading.
     void incoming.offsetWidth;
     incoming.classList.add('is-active');
     outgoing.classList.remove('is-active');
 
     showingA = !showingA;
     index = next;
+    markReady();
   };
 
   const schedule = () => {
-    if (stopped) return;
+    if (stopped || reducedMotion || images.length < 2) return;
     timer = window.setTimeout(async () => {
       if (document.hidden) {
         schedule();
@@ -87,8 +110,8 @@ export function initBgSlideshow(config, opts = {}) {
   };
   document.addEventListener('visibilitychange', onVisibility);
 
-  preload(images[1]).then(() => {
-    if (!stopped) schedule();
+  tryFirst().then((ok) => {
+    if (ok && !reducedMotion) schedule();
   });
 
   return {

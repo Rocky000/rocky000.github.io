@@ -132,10 +132,12 @@ export function initDeck({ root, items, renderCard, settings = {}, onFocus, labe
       const opacity = isMulti()
         ? Math.max(1 - dist * 0.22, 0.72)
         : Math.max(1 - dist * 1.15, 0);
+      const tilt = reduceMotion ? 0 : Math.max(-1, Math.min(1, offset)) * -8;
+      const scale = reduceMotion ? 1 : Math.max(0.9, 1 - dist * 0.04);
 
       card.style.transform = reduceMotion && !isMulti()
         ? 'translate3d(-50%, -50%, 0)'
-        : `translate3d(calc(-50% + ${x}px), -50%, 0)`;
+        : `translate3d(calc(-50% + ${x}px), -50%, 0) rotateY(${tilt}deg) scale(${scale})`;
       card.style.opacity = String(opacity);
       card.style.zIndex = String(1000 - Math.round(dist * 10));
       card.style.pointerEvents = dist < 0.5 ? 'auto' : 'none';

@@ -7,7 +7,7 @@
    ========================================================================== */
 
 /** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260812-splash';
+export const siteRevision = '20260904-contact-name';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
@@ -23,22 +23,22 @@ export const sections = {
   skills: {
     kicker: 'My Skills',
     title: 'The stack I <span class="accent">run in production</span>',
-    note: 'Auto-advances. Drag sideways anytime to browse.',
+    note: 'Travels continuously — four categories at a time on desktop.',
   },
   experience: {
     kicker: 'My Experience',
     title: '7 years of <span class="accent">shipping and operating</span>',
-    note: 'Auto-advances between roles. Scroll inside the card for the full list.',
+    note: 'Two roles. Same thread: infrastructure people actually depend on.',
   },
   projects: {
     kicker: 'My Selected Work',
     title: 'Things I built <span class="accent">end to end</span>',
-    note: 'Auto-advances. Drag sideways anytime to browse.',
+    note: 'Travels continuously — four at a time on desktop.',
   },
   credentials: {
     kicker: 'My Credentials',
     title: 'Education, certifications <span class="accent">&amp; honors</span>',
-    note: 'Auto-advances. Drag sideways anytime to browse.',
+    note: 'School, planned certs, and one trophy from 2018.',
   },
   contact: {
     kicker: 'Contact Me',
@@ -57,8 +57,8 @@ export const sections = {
    -------------------------------------------------------------------------- */
 export const deckSettings = {
   default: { cardW: 420, cardH: 460, autoplayMs: 4500, visible: 1 },
-  skills: { cardW: 280, cardH: 340, autoplayMs: 4000, visible: 3 },
-  projects: { cardW: 300, cardH: 400, autoplayMs: 5000, visible: 3 },
+  skills: { cardW: 340, cardH: 360, autoplayMs: 3500, visible: 4 },
+  projects: { cardW: 320, cardH: 400, autoplayMs: 4000, visible: 3 },
   experience: { cardW: 420, cardH: 480, autoplayMs: 6000, visible: 2 },
   credentials: { cardW: 300, cardH: 420, autoplayMs: 5000, visible: 3 },
 };
@@ -75,9 +75,19 @@ export const profile = {
   // Bump this whenever you replace the PDF so browsers/CDN skip the old file.
   resumeVersion: '20260807b',
   tagline: 'I build and operate the cloud infrastructure that keeps healthcare and restaurant SaaS platforms running.',
+  lead: 'I design, ship, and operate AWS platforms for healthcare and restaurant SaaS — Kubernetes, CI/CD, Terraform, and real-time systems I owned end to end.',
   summary:
     'Senior DevOps & Cloud Platform Engineer with 7+ years of experience building and operating business-critical infrastructure on AWS for healthcare and restaurant SaaS platforms. Beyond infrastructure, brings rare full-stack capability — having sole-owned the design, development, and production deployment of real-time systems (WebSocket/Webhook) and admin tooling for restaurant POS platforms. Deep expertise in Kubernetes (EKS), CI/CD automation (Jenkins, GitHub Actions), Infrastructure as Code (Terraform, Ansible), serverless architecture (AWS Lambda, EventBridge), and automated code quality pipelines (ESLint, SonarQube, CodeQL). Proven track record of driving cloud cost optimization, enforcing HIPAA compliance, and delivering systems that are live in production across 30+ restaurant brands.',
 };
+
+/** Cycling typewriter lines in the hero. */
+export const heroRoles = [
+  'Senior DevOps Engineer',
+  'Cloud Platform Engineer',
+  'Kubernetes operator',
+  'CI/CD architect',
+  'Realtime systems builder',
+];
 
 export const socials = [
   {
@@ -393,6 +403,7 @@ export const nav = [
   { id: 'about', label: 'About' },
   { id: 'skills', label: 'Skills' },
   { id: 'experience', label: 'Experience' },
-  { id: 'projects', label: 'Projects' },
+  { id: 'projects', label: 'Work' },
+  { id: 'credentials', label: 'Credits' },
   { id: 'contact', label: 'Contact' },
 ];

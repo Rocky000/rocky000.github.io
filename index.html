@@ -27,14 +27,15 @@
 <meta name="twitter:description" content="7+ years building and operating business-critical AWS infrastructure. Kubernetes, CI/CD, Terraform, and real-time full-stack systems in production.">
 <meta name="twitter:image" content="https://rockibul.info/assets/img/portrait-hero.jpg">
 
-<link rel="icon" type="image/png" href="assets/img/favicon.png?v=20260812-splash">
-<link rel="apple-touch-icon" href="assets/img/myLogo.png?v=20260812-splash">
+<link rel="icon" type="image/png" href="assets/img/favicon.png?v=20260904-contact-name">
+<link rel="apple-touch-icon" href="assets/img/myLogo.png?v=20260904-contact-name">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
 
-<link rel="stylesheet" href="css/style.css?v=20260812-splash">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.css">
+<link rel="stylesheet" href="css/style.css?v=20260904-contact-name">
 
 <style>
   /* Critical: cover empty shells before style.css / JS finish loading */
@@ -46,10 +47,24 @@
     place-items: center;
     background: #04060d;
   }
+  .boot-splash__inner {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+  }
   .boot-splash__logo {
     width: 112px;
     height: 112px;
     object-fit: contain;
+  }
+  .boot-splash__name {
+    margin: 0;
+    font-family: Syne, ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #9aa5bd;
+    text-align: center;
   }
   @media (prefers-reduced-motion: no-preference) {
     .boot-splash__logo {
@@ -112,7 +127,9 @@
 <script type="importmap">
 {
   "imports": {
-    "three": "https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js"
+    "gsap": "https://cdn.jsdelivr.net/npm/gsap@3.12.7/+esm",
+    "gsap/ScrollTrigger": "https://cdn.jsdelivr.net/npm/gsap@3.12.7/ScrollTrigger.js/+esm",
+    "lenis": "https://cdn.jsdelivr.net/npm/lenis@1.1.20/+esm"
   }
 }
 </script>
@@ -125,13 +142,10 @@
 -->
 
 <div class="boot-splash" id="bootSplash" role="status" aria-live="polite" aria-label="Loading">
-  <img class="boot-splash__logo" src="assets/img/myLogo.png?v=20260812-splash" alt="" width="112" height="112">
-</div>
-
-<div class="bg-slideshow" aria-hidden="true">
-  <div class="bg-slideshow__slide is-active" id="bgSlideA"></div>
-  <div class="bg-slideshow__slide" id="bgSlideB"></div>
-  <div class="bg-slideshow__veil"></div>
+  <div class="boot-splash__inner">
+    <img class="boot-splash__logo" src="assets/img/myLogo.png?v=20260904-contact-name" alt="" width="112" height="112">
+    <p class="boot-splash__name">Rockibul Islam Khan</p>
+  </div>
 </div>
 
 <!-- Shared SVG icon sprite — referenced via <use href="#i-name"> -->
@@ -223,6 +237,13 @@
 
 <a class="skip-link" href="#about">Skip to content</a>
 
+<div class="progress" id="scrollProgress" aria-hidden="true"></div>
+
+<div class="cursor" id="cursor" aria-hidden="true">
+  <span class="cursor__dot"></span>
+  <span class="cursor__ring"></span>
+</div>
+
 <header class="nav" id="nav">
   <div class="nav__inner">
     <a class="nav__brand" href="#home">
@@ -232,18 +253,34 @@
       <span class="nav__brand-text">Rockibul<span class="accent">.</span></span>
     </a>
     <nav class="nav__links" id="navLinks" aria-label="Primary"></nav>
+    <a class="nav__cta" id="navEmail" href="mailto:rockibul.islam20@gmail.com">Email</a>
     <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 
-<aside class="rail" id="socialRail" aria-label="Social links"></aside>
+<div class="cmd" id="cmdPalette" hidden>
+  <div class="cmd__backdrop" data-cmd-close></div>
+  <div class="cmd__dialog" role="dialog" aria-modal="true" aria-labelledby="cmdTitle">
+    <p class="cmd__kicker" id="cmdTitle">Command palette</p>
+    <input class="cmd__input" id="cmdInput" type="search" placeholder="Jump, copy, open…" autocomplete="off" spellcheck="false">
+    <ul class="cmd__list" id="cmdList"></ul>
+    <p class="cmd__hint">↑↓ navigate · ↵ run · esc close</p>
+  </div>
+</div>
 
 <main>
 <section class="hero" id="home">
-  <canvas class="hero__canvas" id="heroCanvas" aria-hidden="true"></canvas>
-  <div class="hero__veil" aria-hidden="true"></div>
+  <div class="hero-media" aria-hidden="true">
+    <div class="hero-media__slide is-active" data-slide="a"></div>
+    <div class="hero-media__slide" data-slide="b"></div>
+    <div class="hero-media__veil"></div>
+    <div class="hero-media__fallback">
+      <img src="assets/img/myLogo.png" alt="" width="160" height="160">
+    </div>
+  </div>
+  <div class="grain" aria-hidden="true"></div>
   <div class="hero__inner">
     <div class="hero__copy">
       <p class="hero__eyebrow">
@@ -251,104 +288,90 @@
         <span id="heroLocation"></span>
       </p>
       <h1 class="hero__name" id="heroName"></h1>
-      <p class="hero__title" id="heroTitle"></p>
+      <p class="hero__role">
+        <span class="hero__role-label">I am a</span>
+        <span class="hero__type" id="heroType" aria-live="polite"></span>
+        <span class="hero__caret" aria-hidden="true"></span>
+      </p>
       <p class="hero__tagline" id="heroTagline"></p>
       <div class="hero__actions">
         <a class="btn btn--primary" href="#projects">
-          View my work <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg>
+          See the work <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg>
         </a>
-        <!-- Resume (disabled): uncomment this block to show "View resume" again.
-        <a class="btn btn--ghost" id="heroResume" href="#" target="_blank" rel="noopener noreferrer">
-          <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg> View resume
-        </a>
-        -->
+        <a class="btn btn--ghost" href="#contact">Let’s talk</a>
       </div>
-      <ul class="hero__stats" id="heroStats"></ul>
     </div>
+    <ul class="hero__stats" id="heroStats"></ul>
   </div>
   <a class="hero__scroll" href="#about" aria-label="Scroll to about">
     <span class="hero__mouse" aria-hidden="true"></span>
+    <span>Scroll</span>
   </a>
 </section>
 
 <section class="section" id="about">
   <div class="wrap">
-    <!-- Heading text lives in js/data.js → sections.about -->
     <header class="section__head reveal" data-section-head="about"></header>
     <div class="about">
-      <div class="about__body reveal">
-        <p class="about__lead" id="aboutSummary"></p>
-        <dl class="about__facts" id="aboutFacts"></dl>
+      <div class="about__lead-wrap reveal">
+        <p class="about__lead" id="aboutLead"></p>
+        <p class="about__body" id="aboutSummary"></p>
       </div>
+      <dl class="about__facts reveal" id="aboutFacts"></dl>
     </div>
   </div>
 </section>
 
-<!-- Heading text lives in js/data.js → sections.skills -->
-<section class="section section--alt section--deck" id="skills">
+<section class="section section--tight" id="skills">
   <div class="wrap">
     <header class="section__head reveal" data-section-head="skills"></header>
   </div>
-
-  <div class="deck" id="skillsDeck" tabindex="0" role="group"
-       aria-roledescription="carousel"
-       aria-label="Skills. Drag or use the left and right arrow keys to browse.">
-    <div class="deck__stage">
-      <div class="deck__track"></div>
+  <div class="marquee-band" aria-hidden="true">
+    <div class="marquee" id="skillsMarquee">
+      <div class="marquee__track" id="skillsMarqueeTrack"></div>
     </div>
+    <div class="marquee marquee--reverse" id="skillsMarqueeB">
+      <div class="marquee__track" id="skillsMarqueeTrackB"></div>
+    </div>
+  </div>
+
+  <div class="skill-strip" id="skillsStrip" aria-label="Skills">
+    <div class="skill-strip__track" id="skillsStripTrack"></div>
   </div>
 </section>
 
-<!-- Heading text lives in js/data.js → sections.experience -->
-<section class="section section--deck" id="experience">
+<section class="section" id="experience">
   <div class="wrap">
     <header class="section__head reveal" data-section-head="experience"></header>
-  </div>
-
-  <div class="deck deck--wide" id="experienceDeck" tabindex="0" role="group"
-       aria-roledescription="carousel"
-       aria-label="Experience. Drag or use the left and right arrow keys to browse roles.">
-    <div class="deck__stage">
-      <div class="deck__track"></div>
-    </div>
+    <div class="exp" id="experienceList"></div>
   </div>
 </section>
 
-<!-- Heading text lives in js/data.js → sections.projects -->
-<section class="section section--alt section--deck" id="projects">
+<section class="section section--alt" id="projects">
   <div class="wrap">
     <header class="section__head reveal" data-section-head="projects"></header>
   </div>
 
-  <div class="deck" id="projectsDeck" tabindex="0" role="group"
-       aria-roledescription="carousel"
-       aria-label="Projects. Drag or use the left and right arrow keys to browse.">
-    <div class="deck__stage">
-      <div class="deck__track"></div>
-    </div>
+  <div class="project-strip" id="projectsStrip" aria-label="Selected work">
+    <div class="project-strip__track" id="projectsStripTrack"></div>
   </div>
 </section>
 
-<!-- Heading text lives in js/data.js → sections.credentials -->
-<section class="section section--deck" id="credentials">
+<section class="section" id="credentials">
   <div class="wrap">
     <header class="section__head reveal" data-section-head="credentials"></header>
-  </div>
-
-  <div class="deck" id="credentialsDeck" tabindex="0" role="group"
-       aria-roledescription="carousel"
-       aria-label="Credentials. Drag or use the left and right arrow keys to browse.">
-    <div class="deck__stage">
-      <div class="deck__track"></div>
-    </div>
+    <div class="creds" id="credentialsStrip"></div>
   </div>
 </section>
 
 <section class="section section--contact" id="contact">
+  <div class="grain grain--soft" aria-hidden="true"></div>
   <div class="wrap">
-    <!-- Heading text lives in js/data.js → sections.contact -->
     <header class="section__head section__head--center reveal" data-section-head="contact"></header>
     <div class="contact reveal">
+      <a class="contact__email magnetic" id="contactEmail" href="#">
+        <span id="contactEmailText"></span>
+      </a>
       <ul class="contact__list" id="contactList"></ul>
       <div class="contact__socials" id="contactSocials"></div>
       <!-- Resume (disabled): uncomment this block to show View / Download resume again.
@@ -370,13 +393,13 @@
   <div class="wrap footer__inner">
     <p class="footer__name" id="footerName"></p>
     <div class="footer__socials" id="footerSocials"></div>
-    <p class="footer__meta">Built with Three.js &amp; a lot of coffee.</p>
+    <p class="footer__meta">Cinematic scroll. Production-grade platforms. Press <kbd>/</kbd> for commands.</p>
   </div>
 </footer>
 
 <script type="module">
   // siteRevision must match js/data.js → siteRevision (bump both on content deploys).
-  const siteRevision = '20260812-splash';
+  const siteRevision = '20260904-contact-name';
   import(`./js/main.js?v=${siteRevision}`);
 </script>
 </body>
