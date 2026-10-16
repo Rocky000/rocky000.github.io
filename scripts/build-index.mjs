@@ -50,8 +50,13 @@ const html = `<!DOCTYPE html>
 <meta name="author" content="${data.profile.name}">
 <meta name="keywords" content="Md. Rockibul Islam Khan, Rockibul, Senior DevOps Engineer, Cloud Platform Engineer, AWS, Kubernetes, EKS, Jenkins, Terraform, CI/CD, SRE, Infrastructure as Code, Dhaka, Bangladesh">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#07080c">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#07080c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#07080c" id="themeColor">
+<meta name="color-scheme" content="dark light">
+<script>
+(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){}})();
+</script>
 
 <link rel="canonical" href="${SITE}">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="${SITE}sitemap.xml">

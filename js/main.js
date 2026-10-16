@@ -6,14 +6,53 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-const state = { menuOpen: false, paletteOpen: false, contactVisible: false };
+const state = { menuOpen: false, paletteOpen: false, popupOpen: false, contactVisible: false };
 
 function syncStickyCta() {
   const bar = $('#stickyCta');
   if (!bar) return;
-  const hide = state.menuOpen || state.paletteOpen || state.contactVisible;
+  const hide = state.menuOpen || state.paletteOpen || state.popupOpen || state.contactVisible;
   bar.classList.toggle('is-hidden', hide);
   bar.inert = hide;
+}
+
+const THEME_KEY = 'theme';
+const THEME_COLORS = { dark: '#07080c', light: '#f7f8fa' };
+
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
+function applyTheme(theme, { persist = false } = {}) {
+  const next = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  if (persist) {
+    try { localStorage.setItem(THEME_KEY, next); } catch {}
+  }
+  const btn = $('#themeToggle');
+  if (btn) {
+    const toLight = next === 'dark';
+    btn.setAttribute('aria-label', toLight ? 'Switch to light theme' : 'Switch to dark theme');
+    btn.setAttribute('aria-pressed', String(next === 'light'));
+  }
+  const meta = $('#themeColor');
+  if (meta) meta.setAttribute('content', THEME_COLORS[next]);
+}
+
+function initTheme() {
+  applyTheme(currentTheme());
+
+  $('#themeToggle')?.addEventListener('click', () => {
+    applyTheme(currentTheme() === 'light' ? 'dark' : 'light', { persist: true });
+  });
+
+  const mq = window.matchMedia('(prefers-color-scheme: light)');
+  mq.addEventListener('change', (e) => {
+    let stored = null;
+    try { stored = localStorage.getItem(THEME_KEY); } catch {}
+    if (stored === 'light' || stored === 'dark') return;
+    applyTheme(e.matches ? 'light' : 'dark');
+  });
 }
 
 function initMenu() {
@@ -86,14 +125,132 @@ function initStickyCta() {
   }).observe(contact);
 }
 
-function openTargetDetails() {
+function openTargetDetails(openCasePopup) {
   const open = () => {
-    const target = location.hash ? document.getElementById(location.hash.slice(1)) : null;
-    const details = target?.closest('details');
-    if (details) details.open = true;
+    const id = location.hash ? location.hash.slice(1) : '';
+    const target = id ? document.getElementById(id) : null;
+    if (!target) return;
+    if (id.startsWith('case-') && target.matches('.case') && openCasePopup) {
+      const details = $('[data-popup]', target);
+      if (details) openCasePopup(details);
+      return;
+    }
+    const details = target.closest('details');
+    if (details && !details.hasAttribute('data-popup')) details.open = true;
   };
   window.addEventListener('hashchange', open);
   open();
+}
+
+function initPopups() {
+  const root = $('#detailModal');
+  const titleEl = $('#popupTitle');
+  const subtitleEl = $('#popupSubtitle');
+  const body = $('#popupBody');
+  if (!root || !titleEl || !body) return;
+
+  document.documentElement.classList.add('js');
+
+  let returnFocus = null;
+  let sourceDetails = null;
+
+  const focusables = () =>
+    $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', root.querySelector('.popup__dialog'))
+      .filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+
+  const close = () => {
+    if (root.hidden) return;
+    root.hidden = true;
+    state.popupOpen = false;
+    syncStickyCta();
+    body.replaceChildren();
+    titleEl.textContent = '';
+    if (subtitleEl) {
+      subtitleEl.textContent = '';
+      subtitleEl.hidden = true;
+    }
+    if (sourceDetails) sourceDetails.open = false;
+    sourceDetails = null;
+    if (returnFocus instanceof HTMLElement) returnFocus.focus();
+    returnFocus = null;
+  };
+
+  const openFromDetails = (details) => {
+    if (!(details instanceof HTMLDetailsElement)) return;
+    const caseEl = details.closest('.case');
+    const jobEl = details.closest('.job');
+    const panel = $('.case__detail, .job__bullets', details);
+    if (!panel) return;
+
+    details.open = false;
+    returnFocus = $('.popup-trigger', details) || document.activeElement;
+    sourceDetails = details;
+
+    if (caseEl) {
+      titleEl.textContent = $('.case__title', caseEl)?.textContent.trim() || 'Case study';
+      if (subtitleEl) {
+        subtitleEl.textContent = $$('.case__meta > span', caseEl)
+          .map((s) => s.textContent.trim())
+          .filter(Boolean)
+          .join(' · ');
+        subtitleEl.hidden = !subtitleEl.textContent;
+      }
+    } else if (jobEl) {
+      titleEl.textContent = $('.job__role', jobEl)?.textContent.trim() || 'Responsibilities';
+      if (subtitleEl) {
+        const company = $('.job__company', jobEl)?.textContent.trim() || '';
+        const meta = $('.job__meta', jobEl)?.textContent.trim() || '';
+        subtitleEl.textContent = [company, meta].filter(Boolean).join(' · ');
+        subtitleEl.hidden = !subtitleEl.textContent;
+      }
+    } else {
+      titleEl.textContent = 'Details';
+      if (subtitleEl) subtitleEl.hidden = true;
+    }
+
+    body.replaceChildren(panel.cloneNode(true));
+    root.hidden = false;
+    state.popupOpen = true;
+    syncStickyCta();
+    $('[data-popup-close].popup__close', root)?.focus();
+  };
+
+  document.addEventListener('click', (e) => {
+    const trigger = e.target.closest('.popup-trigger');
+    if (!trigger) return;
+    const details = trigger.closest('details[data-popup]');
+    if (!details) return;
+    e.preventDefault();
+    openFromDetails(details);
+  });
+
+  root.addEventListener('click', (e) => {
+    if (e.target.closest('[data-popup-close]')) close();
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (root.hidden) return;
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      close();
+      return;
+    }
+    if (e.key !== 'Tab') return;
+    const items = focusables();
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  });
+
+  openTargetDetails(openFromDetails);
+  return openFromDetails;
 }
 
 /* Command palette: built on first use from links already in the page. */
@@ -136,7 +293,15 @@ function initCommandPalette() {
       hint: a.dataset.handle,
       run: () => window.open(a.href, '_blank', 'noopener,noreferrer'),
     }));
-    return [...go, ...copy, ...socials];
+
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    const theme = [{
+      label: `Switch to ${next} theme`,
+      hint: next,
+      run: () => applyTheme(next, { persist: true }),
+    }];
+
+    return [...go, ...copy, ...socials, ...theme];
   };
 
   const paint = () => {
@@ -158,7 +323,7 @@ function initCommandPalette() {
   };
 
   const open = () => {
-    actions ??= buildActions();
+    actions = buildActions();
     returnFocus = document.activeElement;
     root.hidden = false;
     state.paletteOpen = true;
@@ -239,10 +404,11 @@ function init() {
   $$('[data-year]').forEach((el) => {
     el.textContent = String(new Date().getFullYear());
   });
+  initTheme();
   initMenu();
   initActiveNav();
   initStickyCta();
-  openTargetDetails();
+  initPopups();
   initCommandPalette();
 }
 

@@ -47,10 +47,10 @@ partials/page.html         page skeleton with render/partial slots
 partials/palette.html      command palette shell
 partials/icons.html        inline SVG sprite
 scripts/build-index.mjs    prerender + head/SEO + asset hashing
-css/style.css              design tokens, layout, responsive, reduced motion
+css/style.css              design tokens (dark + light), layout, responsive, reduced motion
 js/data.js                 SINGLE EDIT POINT — copy and resume data
 js/render.js               pure HTML templates (run at build time, no DOM)
-js/main.js                 enhancements only: menu, active nav, sticky CTA, palette
+js/main.js                 enhancements only: menu, theme, active nav, sticky CTA, palette
 assets/fonts/              self-hosted Syne + DM Sans (latin, woff2)
 assets/img/                headshot (AVIF/JPEG 560/840), icons, photos
 assets/resume/             resume PDF
@@ -58,6 +58,12 @@ assets/resume/             resume PDF
 ```
 
 Press `/` or `Cmd/Ctrl+K` for the command palette (jump, copy email, open socials).
+
+## Theme
+
+Dark and light themes live as CSS tokens in `css/style.css` (`:root` and `:root[data-theme="light"]`).
+The site follows the OS setting by default; the nav sun/moon toggle stores an override in
+`localStorage` (`theme`). An inline head script sets `data-theme` before paint to avoid a flash.
 
 ## Performance notes
 

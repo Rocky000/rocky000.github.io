@@ -42,6 +42,10 @@ export function renderNav(d) {
       <ul class="nav__links" id="navLinks">${links}</ul>
     </nav>
     <a class="btn btn--ghost btn--sm nav__cta" href="#contact">Get in touch</a>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" aria-pressed="false">
+      ${icon('sun', 'icon icon--sun')}
+      ${icon('moon', 'icon icon--moon')}
+    </button>
     <button class="nav__toggle" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">
       <span class="nav__toggle-bar"></span><span class="nav__toggle-bar"></span><span class="nav__toggle-bar"></span>
     </button>
@@ -138,8 +142,8 @@ export function renderProjects(d) {
         <ul class="case__metrics">
           ${c.metrics.map((m) => `<li><strong>${figure(m.value)}</strong><span>${esc(m.label)}</span></li>`).join('')}
         </ul>
-        <details class="case__more">
-          <summary>Read the case study ${icon('arrow')}</summary>
+        <details class="case__more" data-popup>
+          <summary class="popup-trigger">Read the case study ${icon('arrow')}</summary>
           <div class="case__detail">
             ${c.projects.map((t) => byTitle.get(t)).filter(Boolean).map((p) => projectDetail(p)).join('')}
           </div>
@@ -177,8 +181,8 @@ export function renderExperience(d) {
         </header>
         <div class="job__body">
           <ul class="job__highlights">${job.highlightsHtml.map((h) => `<li>${h}</li>`).join('')}</ul>
-          <details class="job__all">
-            <summary>All responsibilities (${job.bullets.length})</summary>
+          <details class="job__all" data-popup>
+            <summary class="popup-trigger">All responsibilities (${job.bullets.length})</summary>
             <ul class="job__bullets">${job.bullets.map((b) => `<li>${esc(b)}</li>`).join('')}</ul>
           </details>
         </div>
