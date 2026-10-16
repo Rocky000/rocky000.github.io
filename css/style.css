@@ -416,6 +416,13 @@ main:focus { outline: none; }
 }
 .section__note { max-width: 60ch; margin-top: .9rem; color: var(--text-dim); }
 .section__aside { margin-bottom: .45rem; font-size: .95rem; }
+.link--icon {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+}
+.link--icon .icon { width: 1em; height: 1em; color: var(--mint); }
+.link--dark.link--icon .icon { color: var(--mint-ink); }
 
 .card-base,
 .case, .rule, .skill, .about__card, .creds {
@@ -695,9 +702,18 @@ details > summary::-webkit-details-marker { display: none; }
   font-size: .88rem;
   color: var(--text-dim);
 }
-.footer__links { display: flex; flex-wrap: wrap; gap: .25rem 1.25rem; }
-.footer__links a { display: inline-flex; align-items: center; min-height: 44px; transition: color .15s ease; }
-.footer__links a:hover { color: var(--text); }
+.footer__links { display: flex; flex-wrap: wrap; gap: .25rem .5rem; }
+.footer__social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  color: var(--text-dim);
+  transition: color .15s ease;
+}
+.footer__social:hover { color: var(--text); }
+.footer__social .icon--social { width: 1.25rem; height: 1.25rem; }
 
 /* ------------------------------------------------------- Sticky CTA --- */
 .sticky-cta { display: none; }

@@ -186,7 +186,7 @@ export function renderExperience(d) {
     )
     .join('');
   const extra = linkedin
-    ? `<a class="link section__aside" ${external(linkedin.url)}>Full history on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>`
+    ? `<a class="link link--icon section__aside" ${external(linkedin.url)}>${icon('linkedin')}Full history on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>`
     : '';
   return `
 <section class="section" id="experience" aria-labelledby="experience-title">
@@ -298,7 +298,7 @@ export function renderContact(d) {
       </div>
       <div class="cta-band__actions">
         <a class="btn btn--dark btn--lg" href="mailto:${esc(profile.email)}">Send an email</a>
-        ${linkedin ? `<a class="link link--dark" ${external(linkedin.url)}>Connect on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>` : ''}
+        ${linkedin ? `<a class="link link--dark link--icon" ${external(linkedin.url)}>${icon('linkedin')}Connect on LinkedIn<span class="sr-only"> (opens in a new tab)</span></a>` : ''}
       </div>
     </div>
   </div>
@@ -310,7 +310,7 @@ export function renderFooter(d) {
   const links = d.socials
     .map(
       (s) =>
-        `<li><a ${external(s.url)} data-social="${s.id}" data-handle="${esc(s.handle)}">${esc(s.label)}<span class="sr-only"> (opens in a new tab)</span></a></li>`,
+        `<li><a class="footer__social" ${external(s.url)} data-social="${s.id}" data-handle="${esc(s.handle)}" aria-label="${esc(s.label)}">${icon(s.id, 'icon icon--social')}<span class="sr-only">${esc(s.label)} (opens in a new tab)</span></a></li>`,
     )
     .join('');
   return `

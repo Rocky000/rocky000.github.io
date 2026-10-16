@@ -132,7 +132,7 @@ function initCommandPalette() {
       : [];
 
     const socials = $$('.footer [data-social]').map((a) => ({
-      label: `Open ${a.firstChild.textContent.trim()}`,
+      label: `Open ${a.getAttribute('aria-label') || a.dataset.social}`,
       hint: a.dataset.handle,
       run: () => window.open(a.href, '_blank', 'noopener,noreferrer'),
     }));
