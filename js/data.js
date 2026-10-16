@@ -1,66 +1,45 @@
 /* ==========================================================================
    SINGLE EDIT POINT
-   Everything the site displays is defined in this file.
-   Change a value here and it updates everywhere it appears.
+   Everything the site displays is defined in this file. It is read at build
+   time by scripts/build-index.mjs, which prerenders it into index.html.
+   After editing, run: node scripts/build-index.mjs
 
-   Bump `siteRevision` whenever you change content so CDNs/browsers skip stale JS.
+   Plain-text fields are HTML-escaped when rendered. Fields named `*Html`
+   are inserted as-is (use them for <strong> or <em> emphasis).
    ========================================================================== */
-
-/** Bump this string on every content deploy (projects, copy, resume, etc.). */
-export const siteRevision = '20260904-hero-name-break';
 
 /* --------------------------------------------------------------------------
    SECTION HEADINGS
-   `kicker` is the small label above the heading.
-   `title` may contain <span class="accent">…</span> to apply the gradient.
-   `note`  is the optional line under the heading.
+   `kicker` is the small mono label above the heading.
+   `note`   is the optional line under the heading.
    -------------------------------------------------------------------------- */
 export const sections = {
-  about: {
-    kicker: 'About Me',
-    title: 'Infrastructure that people<br><span class="accent">actually depend on</span>',
-  },
-  skills: {
-    kicker: 'My Skills',
-    title: 'The stack I <span class="accent">run in production</span>',
-    note: 'Cloud, containers, CI/CD, and the tools I keep production running with.',
+  projects: {
+    kicker: 'Case studies',
+    title: 'Four systems, four measurable outcomes.',
+    moreTeaser: 'More: Lambda security notifier, menu image pipeline, backup automation',
   },
   experience: {
-    kicker: 'My Experience',
-    title: '7 years of <span class="accent">shipping and operating</span>',
-    note: 'Two roles. Same thread: infrastructure people actually depend on.',
+    kicker: 'Experience',
+    title: 'Two roles, seven years.',
   },
-  projects: {
-    kicker: 'My Selected Work',
-    title: 'Things I built <span class="accent">end to end</span>',
-    note: 'Realtime POS, CI/CD, observability, and recovery — systems I owned end to end.',
+  approach: {
+    kicker: 'Approach',
+    title: 'Three rules I run platforms by.',
   },
-  credentials: {
-    kicker: 'My Credentials',
-    title: 'Education, certifications <span class="accent">&amp; honors</span>',
-    note: 'School, planned certs, and one trophy from 2018.',
+  skills: {
+    kicker: 'Skills',
+    title: 'The stack I run in production.',
+    note: 'Cloud, containers, CI/CD, and the tools I keep production running with.',
+  },
+  about: {
+    kicker: 'About',
+    title: 'Infrastructure people actually depend on.',
   },
   contact: {
-    kicker: 'Contact Me',
-    title: "Let's build something <span class=\"accent\">reliable</span>",
-    note: 'Open to platform engineering, SRE, and cloud architecture conversations.',
+    title: 'Let’s talk infrastructure.',
+    note: 'Always happy to swap notes on platform engineering, SRE and AWS.',
   },
-};
-
-/* --------------------------------------------------------------------------
-   DECK TUNING
-   `default` applies to every deck; a named block overrides only the keys it lists.
-
-   cardW / cardH  card size in pixels
-   autoplayMs     pause before advancing to the next card (loops forever)
-   visible        how many cards to show at once (default 1; falls back to 1 on narrow viewports)
-   -------------------------------------------------------------------------- */
-export const deckSettings = {
-  default: { cardW: 420, cardH: 460, autoplayMs: 4500, visible: 1 },
-  skills: { cardW: 340, cardH: 360, autoplayMs: 3500, visible: 4 },
-  projects: { cardW: 320, cardH: 400, autoplayMs: 4000, visible: 3 },
-  experience: { cardW: 420, cardH: 480, autoplayMs: 6000, visible: 2 },
-  credentials: { cardW: 300, cardH: 420, autoplayMs: 5000, visible: 3 },
 };
 
 export const profile = {
@@ -80,19 +59,40 @@ export const profile = {
     'Senior DevOps & Cloud Platform Engineer with 7+ years of experience building and operating business-critical infrastructure on AWS for healthcare and restaurant SaaS platforms. Beyond infrastructure, brings rare full-stack capability — having sole-owned the design, development, and production deployment of real-time systems (WebSocket/Webhook) and admin tooling for restaurant POS platforms. Deep expertise in Kubernetes (EKS), CI/CD automation (Jenkins, GitHub Actions), Infrastructure as Code (Terraform, Ansible), serverless architecture (AWS Lambda, EventBridge), and automated code quality pipelines (ESLint, SonarQube, CodeQL). Proven track record of driving cloud cost optimization, enforcing HIPAA compliance, and delivering systems that are live in production across 30+ restaurant brands.',
 };
 
-/** Foreground cutout standing on the hero stage. */
-export const heroPortrait = {
-  src: 'assets/img/portrait-cutout.png',
-  alt: 'Md. Rockibul Islam Khan',
+/* --------------------------------------------------------------------------
+   HERO
+   `leadMore` is hidden on small screens to keep the CTA above the fold.
+   `photo` sources are generated into assets/img/ (see README).
+   -------------------------------------------------------------------------- */
+export const hero = {
+  eyebrow: 'Building platforms at Katria · Dhaka, Bangladesh',
+  eyebrowShort: 'Building at Katria · Dhaka',
+  headline: 'I keep healthcare & restaurant SaaS on AWS',
+  headlineAccent: 'up, fast and affordable.',
+  lead: '7 years running EKS, Terraform and CI/CD in production',
+  leadMore:
+    ' — from a HIPAA-regulated healthcare platform to real-time POS systems across 30+ restaurant brands.',
+  primaryCta: { label: 'See case studies', href: '#projects' },
+  secondaryCta: { label: 'Get in touch', href: '#contact' },
+  current: { label: 'Currently', role: 'Senior DevOps @ Katria', since: 'Jul 2024 → now' },
+  photo: {
+    alt: 'Md. Rockibul Islam Khan',
+    width: 560,
+    height: 700,
+    jpg: 'assets/img/headshot-560.jpg',
+    jpg2x: 'assets/img/headshot-840.jpg',
+    avif: 'assets/img/headshot-560.avif',
+    avif2x: 'assets/img/headshot-840.avif',
+  },
+  featured: { label: 'Featured case study', title: 'HIPAA platform at 99.95% uptime', href: '#case-hipaa' },
 };
 
-/** Cycling typewriter lines in the hero. */
-export const heroRoles = [
-  'Senior DevOps Engineer',
-  'Cloud Platform Engineer',
-  'Kubernetes operator',
-  'CI/CD architect',
-  'Realtime systems builder',
+/** Headline numbers. Every value comes from the experience bullets below. */
+export const highlights = [
+  { value: '99.95%', label: 'availability on AWS, sustained over 5 years', short: 'availability, 5 yrs' },
+  { value: '~20%', label: 'AWS bill cut via rightsizing, RIs & S3 lifecycle', short: 'AWS costs cut' },
+  { value: '~60%', label: 'faster pipeline setup with a shared Jenkins library', short: 'faster pipelines' },
+  { value: '30+', label: 'restaurant brands on platforms I run', short: 'brands served' },
 ];
 
 export const socials = [
@@ -120,12 +120,6 @@ export const socials = [
     handle: '@rockibulislamkhan',
     url: 'https://www.youtube.com/@rockibulislamkhan',
   },
-];
-
-export const stats = [
-  { value: 7, suffix: '+', label: 'Years in DevOps' },
-  { value: 30, suffix: '+', label: 'Restaurant brands served' },
-  { value: 99.9, suffix: '%', label: 'Platform uptime', decimals: 1 },
 ];
 
 export const skills = [
@@ -223,6 +217,13 @@ export const experience = [
     location: 'Dhaka, Bangladesh',
     period: 'Jul 2024 – Present',
     current: true,
+    highlightsHtml: [
+      'Built the org-wide Jenkins platform — <strong>~60% faster</strong> pipeline setup.',
+      'Cut AWS costs <strong>~20%</strong>; ELK took diagnosis from <strong>hours to minutes</strong>.',
+      'Codified infra in Terraform + Ansible; backups meeting <strong>RPO &lt; 24h, RTO &lt; 4h</strong>.',
+      'Shipped a real-time POS notification system, live across <strong>30+ brands</strong>.',
+      'Mentored <strong>10+ developers</strong> on DevOps and AWS.',
+    ],
     bullets: [
       'Architected and operate the organization-wide Jenkins CI/CD platform including a reusable Shared Library framework adopted by all development teams, cutting new pipeline setup time by ~60%.',
       'Deployed a centralized ELK logging platform aggregating logs across all production services, reducing mean time to diagnose incidents from hours to minutes.',
@@ -246,6 +247,12 @@ export const experience = [
     location: 'Dhaka, Bangladesh',
     period: 'Mar 2019 – Jun 2024',
     current: false,
+    highlightsHtml: [
+      'Ran EKS for a HIPAA healthcare platform at <strong>99.95% availability</strong>.',
+      'Terraform modules took provisioning from <strong>days to under 2 hours</strong>.',
+      'Containerized <strong>15+ apps</strong> with Helm; Ansible across <strong>50+ nodes</strong>.',
+      'SLO dashboards + PagerDuty cut on-call noise <strong>40%</strong>.',
+    ],
     bullets: [
       'Managed production and development Kubernetes clusters on AWS EKS supporting a HIPAA-regulated healthcare platform serving thousands of patients daily.',
       'Enforced HIPAA compliance within Kubernetes environments — implemented network policies, secrets management, pod security policies, and full audit logging.',
@@ -343,6 +350,91 @@ export const projects = [
   },
 ];
 
+/* --------------------------------------------------------------------------
+   CASE STUDIES (the 2x2 grid). `projects` lists titles from `projects` above
+   whose full write-ups appear under "Read the case study".
+   -------------------------------------------------------------------------- */
+export const caseStudies = [
+  {
+    id: 'case-hipaa',
+    tag: 'Healthcare · HIPAA',
+    org: 'Infolytx',
+    years: '2019–2024',
+    title: 'Running a HIPAA-regulated patient platform on EKS',
+    problem: 'Thousands of patients a day, strict compliance, no room for downtime.',
+    did: 'EKS with network policies, secrets management and audit logging; Multi-AZ RDS; reusable Terraform modules.',
+    metrics: [
+      { value: '99.95%', label: 'availability, 5 years' },
+      { value: 'days → 2h', label: 'infra provisioning' },
+    ],
+    projects: ['HIPAA-Compliant Healthcare Infrastructure'],
+  },
+  {
+    id: 'case-jenkins',
+    tag: 'CI/CD · Platform',
+    org: 'Katria',
+    years: '2024–now',
+    title: 'An org-wide Jenkins platform every team adopted',
+    problem: 'Pipelines were set up team by team; deployments needed manual coordination.',
+    did: 'A reusable Shared Library, Slack-to-Jenkins ChatOps, and a GitHub Actions quality gate (SonarQube, CodeQL).',
+    metrics: [
+      { value: '~60%', label: 'faster pipeline setup' },
+      { value: 'All teams', label: 'on the shared library' },
+    ],
+    projects: [
+      'Enterprise Jenkins Shared Library Framework',
+      'Slack-to-Jenkins Deployment Automation',
+      'Automated GitHub Code Review Pipeline',
+    ],
+  },
+  {
+    id: 'case-cost',
+    tag: 'Cost · Observability',
+    org: 'Katria',
+    years: '2024–now',
+    title: 'Cheaper to run, faster to debug',
+    problem: 'Rising AWS spend and incidents that took hours to diagnose.',
+    did: 'EC2 rightsizing, Reserved Instances, S3 lifecycle rules; centralized ELK logging; Prometheus + Grafana alerting.',
+    metrics: [
+      { value: '~20%', label: 'lower AWS costs' },
+      { value: 'hrs → mins', label: 'time to diagnose' },
+    ],
+    projects: ['Centralized ELK Logging Platform'],
+  },
+  {
+    id: 'case-pos',
+    tag: 'Real-time · Full-stack',
+    org: 'Katria',
+    years: '2024–now',
+    title: 'Emergency broadcast to every POS screen, in real time',
+    problem: 'Admins had no way to reach restaurant terminals instantly.',
+    did: 'Designed and shipped a WebSocket targeting engine: one screen, one restaurant, a chain, or all locations.',
+    metrics: [
+      { value: '30+', label: 'brands reachable' },
+      { value: 'Sub-second', label: 'alert delivery' },
+    ],
+    projects: ['Real-Time POS Notification System', 'POS Screen Blocker — Admin Emergency Broadcast'],
+  },
+];
+
+export const approach = [
+  {
+    title: 'Make the right way the easy way',
+    body: 'Shared libraries and paved paths beat documentation. That’s why every team adopted the Jenkins platform.',
+    proof: '~60% faster pipeline setup',
+  },
+  {
+    title: 'If you can’t see it, you can’t run it',
+    body: 'Logs, metrics and alerts come before features. Alerts should wake people only when it matters.',
+    proof: '40% less on-call noise',
+  },
+  {
+    title: 'Cost is a reliability feature',
+    body: 'Rightsizing and lifecycle rules are part of the job, not a once-a-year cleanup.',
+    proof: '~20% lower AWS bill',
+  },
+];
+
 export const education = {
   items: [
     {
@@ -382,12 +474,11 @@ export const awards = [
   },
 ];
 
+/** Primary navigation, in page order. `contact` is the separate CTA button. */
 export const nav = [
-  { id: 'home', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'experience', label: 'Experience' },
   { id: 'projects', label: 'Work' },
-  { id: 'credentials', label: 'Credits' },
-  { id: 'contact', label: 'Contact' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'approach', label: 'Approach' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'about', label: 'About' },
 ];
