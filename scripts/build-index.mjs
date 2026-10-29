@@ -155,7 +155,7 @@ const hashOf = (rel) => {
 
 // Stamp relative asset URLs only (absolute og:image etc. are preceded by "/").
 const stamped = html.replace(
-  /(?<![\w/.-])((?:assets|css|js)\/[\w./-]+\.(?:css|js|woff2|png|jpe?g|avif|svg|pdf))(?![\w?])/g,
+  /(?<![\w/.-])((?:assets|css|js)\/[\w./-]+\.(?:css|js|woff2|png|jpe?g|avif|webp|svg|pdf))(?![\w?])/g,
   (path) => `${path}?v=${hashOf(path)}`,
 );
 
