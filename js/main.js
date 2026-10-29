@@ -9,6 +9,58 @@ const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const state = { menuOpen: false, paletteOpen: false, drawerOpen: false };
 
+/*
+ * Years of experience ({years} / {Years} in js/data.js) are prerendered at build
+ * time; recount them here so the page rolls over on 1 January without a rebuild.
+ * Keep YEAR_WORDS in sync with js/render.js (main.js loads no other module).
+ */
+const YEAR_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
+
+function initYears() {
+  const now = new Date().getFullYear();
+  $$('[data-year]').forEach((el) => {
+    el.textContent = String(now);
+  });
+  $$('[data-years]').forEach((el) => {
+    const n = Math.max(0, now - Number(el.dataset.years));
+    el.textContent = el.dataset.yearsFormat === 'word' ? YEAR_WORDS[n] ?? String(n) : String(n);
+  });
+}
+
+/*
+ * Theme: follows the OS until the visitor picks one; the choice is stored in
+ * localStorage (`theme`). The inline head script applies it before first paint.
+ */
+const THEME_KEY = 'theme';
+const THEME_COLORS = { dark: '#0A0B0D', light: '#F6F6F3' };
+
+function currentTheme() {
+  return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
+}
+
+function applyTheme(theme, { persist = false } = {}) {
+  const next = theme === 'light' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  if (persist) {
+    try { localStorage.setItem(THEME_KEY, next); } catch {}
+  }
+  $('#themeToggle')?.setAttribute('aria-label', next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  $('#themeColor')?.setAttribute('content', THEME_COLORS[next]);
+}
+
+function initTheme() {
+  applyTheme(currentTheme());
+  $('#themeToggle')?.addEventListener('click', () => {
+    applyTheme(currentTheme() === 'light' ? 'dark' : 'light', { persist: true });
+  });
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
+    let stored = null;
+    try { stored = localStorage.getItem(THEME_KEY); } catch {}
+    if (stored !== 'light' && stored !== 'dark') applyTheme(e.matches ? 'light' : 'dark');
+  });
+}
+
 /* Browsers without scroll-driven animations: drive the bar from JS. */
 function initScrollProgress() {
   const bar = $('.progress');
@@ -329,7 +381,10 @@ function initCommandPalette() {
       run: () => window.open(a.href, '_blank', 'noopener,noreferrer'),
     }));
 
-    return [...go, ...copy, ...socials];
+    const next = currentTheme() === 'light' ? 'dark' : 'light';
+    const theme = [{ label: `Switch to ${next} theme`, hint: next, run: () => applyTheme(next, { persist: true }) }];
+
+    return [...go, ...copy, ...socials, ...theme];
   };
 
   const paint = () => {
@@ -386,6 +441,9 @@ function initCommandPalette() {
   root.addEventListener('click', (e) => {
     if (e.target.closest('[data-cmd-close]')) close();
   });
+  $('#cmdOpen')?.addEventListener('click', () => {
+    if (root.hidden && !state.drawerOpen) open();
+  });
 
   document.addEventListener('keydown', (e) => {
     if (state.drawerOpen) return;
@@ -428,9 +486,8 @@ function initCommandPalette() {
 }
 
 function init() {
-  $$('[data-year]').forEach((el) => {
-    el.textContent = String(new Date().getFullYear());
-  });
+  initYears();
+  initTheme();
   initScrollProgress();
   initMenu();
   initScrollSpy();

@@ -15,17 +15,35 @@ const external = (url) => `href="${esc(url)}" target="_blank" rel="noopener nore
 const newTab = '<span class="sr-only"> (opens in a new tab)</span>';
 
 const list = (items, fn) => items.map(fn).join('');
+
+/* Years of experience: counted per calendar year, so it rolls over on 1 January. */
+const YEAR_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
+export const yearsSince = (since, now = new Date()) => Math.max(0, now.getFullYear() - since);
+export const yearsWord = (n) => YEAR_WORDS[n] ?? String(n);
+
+/** Plain text: {years} → "7", {Years} → "Seven" (meta tags, resume). */
+export const fillYearsText = (text, since) =>
+  String(text).replace(/\{years\}/g, String(yearsSince(since))).replace(/\{Years\}/g, yearsWord(yearsSince(since)));
+
+/** HTML: same, wrapped in spans that main.js recounts on load — no rebuild needed in a new year. */
+const fillYears = (html, since) => {
+  const n = yearsSince(since);
+  return html
+    .replace(/\{years\}/g, `<span data-years="${since}">${n}</span>`)
+    .replace(/\{Years\}/g, `<span data-years="${since}" data-years-format="word">${yearsWord(n)}</span>`);
+};
 const chips = (items, cls = 'chip') => `<ul class="chips">${list(items, (t) => `<li class="${cls}">${esc(t)}</li>`)}</ul>`;
 
 /* ------------------------------------------------------------ Components --- */
 
-/** Mono kicker + H2, with an optional note or action on the right. */
-export function sectionHeader({ id, kicker, title, note = '', aside = '' }) {
+/** Mono kicker + H2, with an optional note or action on the right. `since` fills {years} tokens. */
+export function sectionHeader({ id, kicker, title, note = '', aside = '', since }) {
   return `
     <header class="section__head reveal">
       <div class="section__titles">
         <p class="kicker">${esc(kicker)}</p>
-        <h2 class="section__title" id="${id}-title">${esc(title)}</h2>
+        <h2 class="section__title" id="${id}-title">${fillYears(esc(title), since)}</h2>
       </div>
       ${note ? `<p class="section__note">${esc(note)}</p>` : ''}${aside}
     </header>`;
@@ -244,7 +262,9 @@ ${list(d.caseStudies, (c, i) => caseDrawerBody(c, d, i))}`;
 
 /* --------------------------------------------------------------- Regions --- */
 
-const brand = (d) => `<img class="brand__logo" src="${d.profile.logo.src}" width="28" height="28" alt="">`;
+const brand = (d) =>
+  `<img class="brand__logo logo--dark-theme" src="${d.profile.logo.darkTheme}" width="28" height="28" alt="">` +
+  `<img class="brand__logo logo--light-theme" src="${d.profile.logo.lightTheme}" width="28" height="28" alt="">`;
 
 export function renderNav(d) {
   const links = (cls) => list(d.nav, (n) => `<li><a class="${cls}" href="#${n.id}" data-nav="${n.id}">${esc(n.label)}</a></li>`);
@@ -255,6 +275,8 @@ export function renderNav(d) {
     <a class="brand" href="#top" aria-label="${esc(d.profile.name)}, back to top">${brand(d)}<span>${esc(d.profile.shortName)}</span></a>
     <ul class="nav__links hide-sm" id="navLinks">${links('nav__link')}</ul>
     <div class="nav__actions">
+      <button class="icon-btn nav__kbd" id="cmdOpen" type="button" aria-label="Open shortcuts" aria-keyshortcuts="/" title="Shortcuts (press /)"><kbd aria-hidden="true">/</kbd></button>
+      <button class="icon-btn" id="themeToggle" type="button" aria-label="Switch to light theme">${icon('sun', 'icon icon--sun')}${icon('moon', 'icon icon--moon')}</button>
       <a class="btn btn--accent btn--sm" href="#contact">Let’s talk${icon('arrow-ur')}</a>
       <button class="icon-btn show-sm" id="navToggle" type="button" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu">${icon('menu')}</button>
     </div>
@@ -288,12 +310,12 @@ export function renderHero(d) {
     </div>
     <div class="hero__body">
       <div class="hero__copy fade-up" style="--delay:.7s">
-        <p class="hero__intro">${hero.introHtml}</p>
+        <p class="hero__intro">${fillYears(hero.introHtml, d.profile.careerStart)}</p>
         <div class="hero__ctas">
           <a class="btn btn--accent btn--lg btn--down" href="${hero.primaryCta.href}">${esc(hero.primaryCta.label)}${icon('arrow-down')}</a>
           <a class="btn btn--ghost btn--lg" href="${hero.secondaryCta.href}">${esc(hero.secondaryCta.label)}</a>
         </div>
-        <p class="hero__facts">${hero.facts.map(esc).join('<span aria-hidden="true">/</span>')}</p>
+        <p class="hero__facts">${hero.facts.map((f) => `<span>${fillYears(esc(f), d.profile.careerStart)}</span>`).join('<span aria-hidden="true">/</span>')}</p>
       </div>
       <div class="hero__board fade-up" style="--delay:.85s">
         <div class="board float">
@@ -357,7 +379,7 @@ export function renderExperience(d) {
   return `
 <section class="section" id="experience" aria-labelledby="experience-title">
   <div class="wrap">
-    ${sectionHeader({ id: 'experience', ...d.sections.experience, aside })}
+    ${sectionHeader({ id: 'experience', ...d.sections.experience, aside, since: d.profile.careerStart })}
     <div class="timeline">
       <div class="timeline__line" aria-hidden="true"><span class="timeline__fill"></span></div>
       <ol>
@@ -365,7 +387,7 @@ export function renderExperience(d) {
       <li class="role reveal">
         <span class="role__node" aria-hidden="true"></span>
         <div class="role__head">
-          <p class="role__dates">${esc(r.dates)}</p>
+          <p class="role__dates">${esc(`${r.period.replace(' – ', ' — ').replace('Present', 'Now')} · ${r.location.split(',')[0]}`)}</p>
           <h3 class="role__title">${esc(r.role)}</h3>
           <p class="role__company">${esc(r.company)}</p>
           ${r.current ? '<p class="role__now"><span class="dot dot--sm pulse" aria-hidden="true"></span>Current role</p>' : ''}
@@ -461,7 +483,7 @@ export function renderContact(d) {
         <ul class="contact__links">
           <li><a href="tel:${esc(profile.phoneHref)}">${esc(profile.phone)}</a></li>
           ${list(links, (s) => `<li><a ${external(s.url)}>${esc(s.label)} ↗${newTab}</a></li>`)}
-          <li><a href="${profile.resume}" download>Résumé (PDF)</a></li>
+          ${d.resume.show ? `<li><a href="${d.resume.pdf}" download>Résumé (PDF)</a></li>` : ''}
         </ul>
       </div>
     </div>
@@ -478,7 +500,6 @@ export function renderFooter(d) {
     <ul class="footer__socials">
       ${list(d.socials, (s) => `<li><a class="icon-btn" ${external(s.url)} data-social="${s.id}" data-handle="${esc(s.handle)}" aria-label="${esc(s.label)} (opens in a new tab)">${icon(s.id)}</a></li>`)}
     </ul>
-    <p class="footer__hint hide-touch">Press <kbd>/</kbd> for shortcuts</p>
     <a class="footer__top" href="#top">Back to top${icon('arrow-up')}</a>
   </div>
   <p class="footer__mark" aria-hidden="true">${esc(d.profile.shortName)}</p>

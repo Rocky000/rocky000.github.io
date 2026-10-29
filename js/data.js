@@ -7,6 +7,10 @@
    Plain-text fields are HTML-escaped when rendered. Fields named `*Html`
    are inserted as-is (use them for <strong> or <span> emphasis).
    Types below are JSDoc, so editors type-check this file without a build step.
+
+   Years of experience are never typed by hand: write {years} (→ "7") or
+   {Years} (→ "Seven") and they are counted from `profile.careerStart`, at build
+   time and again in the browser, so the page rolls over every 1 January.
    ========================================================================== */
 
 /**
@@ -54,8 +58,10 @@ export const profile = {
   email: 'rockibul.islam20@gmail.com',
   phone: '+880 1551-806344',
   phoneHref: '+8801551806344',
-  resume: 'assets/resume/Rockibul_Islam_Khan_Resume.pdf',
-  logo: { src: 'assets/img/logo-light.png', width: 96, height: 96 },
+  /** First year in production — {years} = current year − this. */
+  careerStart: 2019,
+  /** Light-coloured mark for the dark theme, original navy mark for the light theme. */
+  logo: { darkTheme: 'assets/img/logo-light.png', lightTheme: 'assets/img/logo.png' },
 };
 
 export const socials = [
@@ -84,10 +90,10 @@ export const hero = {
   headline: 'I make production',
   rotating: ['boring.', 'cheaper.', 'faster.', 'calmer.'],
   introHtml:
-    'I’m <span class="hero__name">Md. Rockibul Islam Khan</span>. For 7 years I’ve kept a HIPAA-regulated healthcare platform and real-time POS systems for 30+ restaurant brands on AWS — up, fast and affordable.',
+    'I’m <span class="hero__name">Md. Rockibul Islam Khan</span>. For {years} years I’ve kept a HIPAA-regulated healthcare platform and real-time POS systems for 30+ restaurant brands on AWS — up, fast and affordable.',
   primaryCta: { label: 'See the work', href: '#work' },
   secondaryCta: { label: 'Get in touch', href: '#contact' },
-  facts: ['7 yrs in production', 'AWS · EKS · Terraform', 'Katria since 2024'],
+  facts: ['{years} yrs in production', 'AWS · EKS · Terraform', 'Katria since 2024'],
 };
 
 export const statusBoard = {
@@ -131,7 +137,7 @@ export const sections = {
     title: 'Six systems I built and run.',
     note: 'Newest first. Open any card for the full story — problem, approach, stack and results.',
   },
-  experience: { kicker: '02 — Experience', title: 'Two roles. Seven years in production.' },
+  experience: { kicker: '02 — Experience', title: 'Two roles. {Years} years in production.' },
   approach: { kicker: '03 — Approach', title: 'Three rules I run platforms by.' },
   stack: {
     kicker: '04 — Stack',
@@ -373,10 +379,15 @@ export const posSample = {
 /* --------------------------------------------------------------------------
    EXPERIENCE · APPROACH · STACK · ABOUT
    -------------------------------------------------------------------------- */
+/**
+ * `points` are the short highlights on the page; `bullets` are the full
+ * resume bullets (PDF only). `period` uses "Present" for the current role.
+ */
 export const experience = [
   {
     current: true,
-    dates: 'Jul 2024 — Now · Dhaka',
+    period: 'Jul 2024 – Present',
+    location: 'Dhaka, Bangladesh',
     role: 'Senior DevOps & Cloud Platform Engineer',
     company: 'Katria Bangladesh Limited',
     points: [
@@ -387,10 +398,29 @@ export const experience = [
       'Built real-time POS messaging over WebSocket (emergency messages and changelogs), live across 30+ brands.',
       'Mentored 10+ developers on DevOps and AWS.',
     ],
+    bullets: [
+      'Architected and operate the organization-wide Jenkins CI/CD platform including a reusable Shared Library framework adopted by all development teams, cutting new pipeline setup time by ~60%.',
+      'Deployed a centralized ELK logging platform aggregating logs across all production services, reducing mean time to diagnose incidents from hours to minutes.',
+      'Reduced AWS infrastructure costs by ~20% through EC2 rightsizing, Reserved Instance purchasing, and S3 lifecycle policy optimization.',
+      'Built end-to-end Slack-to-Jenkins deployment automation via slash commands and webhook notifiers, eliminating manual deployment coordination across teams.',
+      'Implemented Grafana + Prometheus monitoring with custom dashboards and alerting, enabling proactive incident detection before user impact.',
+      'Automated weekly database and server backup pipelines to S3 with validation, meeting RPO < 24h and RTO < 4h targets for business continuity.',
+      'Codified all infrastructure using Terraform and Ansible, enabling repeatable, auditable provisioning and disaster recovery drills.',
+      'Built a serverless AWS Lambda–based notification system using CloudTrail + EventBridge to detect and alert on IAM user changes, service events, and security anomalies in real time via Microsoft Teams.',
+      'Extended the Lambda notifier to deliver CI/CD pipeline status updates to Microsoft Teams, giving all stakeholders live build and deployment visibility without accessing Jenkins directly.',
+      'Engineered an automated GitHub code review pipeline enforcing quality and security across frontend (ESLint, Prettier, KarmaJS) and backend (SonarQube, CodeQL) on every pull request — reducing manual review cycles and catching vulnerabilities pre-merge.',
+      'Designed and built the Katria Support Portal end to end (UX, frontend and backend): a live request log refreshing every second, incidents grouped by who should act, and an Error Guide of 40 known errors with fixes.',
+      'Designed and shipped a real-time POS notification system (WebSocket + Webhook) currently live in production — sole owner of frontend, backend, and DevOps; delivers instant alerts to restaurant POS terminals across all brands with sub-second latency.',
+      'Extended the POS notification engine into a targeted POS screen blocker allowing admins to broadcast emergency messages to a specific screen, a single restaurant, an entire chain, or all locations simultaneously.',
+      'Built POS changelogs: admins publish release notes once, targeted to POS, Admin or both, and they are pushed over WebSocket into the notification bell on every POS in real time.',
+      'Built a menu image upload & management pipeline with in-browser cropper UI and direct-to-S3 upload, enabling restaurant teams to manage item images through admin UX without engineering involvement.',
+      'Mentored and upskilled 10+ developers on DevOps practices, AWS cloud management, and deployment best practices.',
+    ],
   },
   {
     current: false,
-    dates: 'Mar 2019 — Jun 2024 · Dhaka',
+    period: 'Mar 2019 – Jun 2024',
+    location: 'Dhaka, Bangladesh',
     role: 'DevOps Engineer II',
     company: 'Infolytx Limited',
     points: [
@@ -398,6 +428,17 @@ export const experience = [
       'Terraform modules took provisioning from days to under 2 hours.',
       'Containerized 15+ apps with Helm; Ansible across 50+ nodes.',
       'SLO dashboards + PagerDuty cut on-call noise 40%.',
+    ],
+    bullets: [
+      'Managed production and development Kubernetes clusters on AWS EKS supporting a HIPAA-regulated healthcare platform serving thousands of patients daily.',
+      'Enforced HIPAA compliance within Kubernetes environments — implemented network policies, secrets management, pod security policies, and full audit logging.',
+      'Containerized 15+ legacy and greenfield applications using Docker and packaged them as Helm charts for versioned, reproducible deployments.',
+      'Designed highly available, fault-tolerant AWS architectures (EC2, RDS Multi-AZ, VPC, ALB, Auto Scaling) achieving 99.95% platform availability over 5 years.',
+      'Developed reusable Terraform IaC modules for VPC, EKS, RDS, and IAM — reducing infrastructure provisioning time from days to under 2 hours.',
+      'Administered and performance-tuned PostgreSQL and MySQL databases including query optimization, replication setup, and automated backup strategies.',
+      'Built Ansible configuration management playbooks eliminating manual configuration drift across 50+ server fleet nodes.',
+      'Evolved the Prometheus + Grafana observability stack with SLO-aligned dashboards and PagerDuty alerting integration, reducing on-call noise by 40%.',
+      'Supported restaurant SaaS and multi-tenant platform infrastructure across 30+ brands, coordinating deployments in Agile sprints using Jira and GitHub.',
     ],
   },
 ];
@@ -453,5 +494,105 @@ export const about = {
     { title: 'B.Sc. Computer Engineering', detail: 'AIUB · 2014–2018' },
     { title: '1st Place — ACES Project & Thesis Poster', detail: 'Smart Traffic Management · 2018' },
     { title: 'Next up: SAA-C03 · DOP-C02 · CKA · CEH', detail: 'In progress' },
+  ],
+};
+
+/* --------------------------------------------------------------------------
+   RESUME (ATS PDF) — generated by `node scripts/build-resume.mjs` from this
+   file. Experience comes from `experience[].bullets`; contact from `profile`
+   and `socials`. Set `show: true` to put the "Résumé (PDF)" link back in
+   Contact (then rebuild the page).
+   -------------------------------------------------------------------------- */
+export const resume = {
+  show: false,
+  pdf: 'assets/resume/Rockibul_Islam_Khan_Resume_ATS.pdf',
+  summary:
+    'Senior DevOps & Cloud Platform Engineer with {years}+ years of experience building and operating business-critical infrastructure on AWS for healthcare and restaurant SaaS platforms. Beyond infrastructure, brings rare full-stack capability — having sole-owned the design, development, and production deployment of real-time systems (WebSocket/Webhook), an internal support portal, and admin tooling for restaurant POS platforms. Deep expertise in Kubernetes (EKS), CI/CD automation (Jenkins, GitHub Actions), Infrastructure as Code (Terraform, Ansible), serverless architecture (AWS Lambda, EventBridge), and automated code quality pipelines (ESLint, SonarQube, CodeQL). Proven track record of driving cloud cost optimization, enforcing HIPAA compliance, and delivering systems that are live in production across 30+ restaurant brands.',
+  skills: [
+    { category: 'Cloud', items: ['AWS EC2', 'S3', 'RDS', 'VPC', 'IAM', 'ALB', 'Auto Scaling', 'CloudWatch', 'EKS', 'Lambda', 'EventBridge', 'CloudTrail', 'SNS'] },
+    { category: 'Containers', items: ['Kubernetes', 'Docker', 'Helm Charts', 'EKS', 'ECS'] },
+    { category: 'CI/CD', items: ['Jenkins', 'Jenkins Shared Libraries', 'GitHub Actions', 'Slack Integration', 'Microsoft Teams Integration'] },
+    { category: 'Serverless', items: ['AWS Lambda', 'Amazon EventBridge', 'CloudTrail', 'SNS'] },
+    { category: 'Code Quality', items: ['ESLint', 'Prettier', 'KarmaJS', 'SonarQube', 'CodeQL'] },
+    { category: 'Real-Time', items: ['WebSocket', 'Webhooks', 'REST APIs'] },
+    { category: 'Infrastructure as Code', items: ['Terraform', 'Ansible'] },
+    { category: 'Observability', items: ['Elasticsearch', 'Logstash', 'Kibana', 'Prometheus', 'Grafana', 'PagerDuty'] },
+    { category: 'Databases', items: ['PostgreSQL', 'MySQL', 'MongoDB'] },
+    { category: 'Programming', items: ['Bash', 'Python 3', 'Node.js', 'JavaScript', 'React'] },
+    { category: 'Security', items: ['HIPAA Compliance', 'Nginx', 'K8s Network Policies', 'Secrets Management'] },
+    { category: 'Practices', items: ['Agile / Scrum', 'Full-Stack Development', 'Linux Administration', 'Cost Optimization'] },
+  ],
+  /** `{ case: id }` reuses a case study's title, summary and stack. */
+  projects: [
+    { case: 'case-portal' },
+    { case: 'case-changelog' },
+    {
+      title: 'Real-Time POS Notification System',
+      summary: 'Sole owner of design, development, and deployment of a WebSocket + Webhook-based notification platform delivering real-time alerts to restaurant POS terminals. Responsible for the full stack: Node.js backend, React frontend, and AWS infrastructure. Currently running in production across 30+ restaurant brands.',
+      tags: ['WebSocket', 'Webhooks', 'Node.js', 'React', 'AWS'],
+    },
+    {
+      title: 'POS Screen Blocker — Admin Emergency Broadcast',
+      summary: 'Extended the real-time notification system to support targeted screen takeover: admins can push full-screen emergency messages to a specific POS terminal, a single restaurant, an entire chain, or all locations at once, and the POS stays locked until staff confirm.',
+      tags: ['WebSocket', 'Admin UX', 'Targeting Engine'],
+    },
+    {
+      title: 'Enterprise Jenkins Shared Library Framework',
+      summary: 'Designed and built a centralized Jenkins Shared Library used by all development teams, standardizing CI/CD pipelines across the organization and reducing pipeline creation time by ~60%.',
+      tags: ['Jenkins', 'Groovy', 'CI/CD'],
+    },
+    {
+      title: 'AWS Lambda Real-Time Security & CI/CD Notifier',
+      summary: 'Built a serverless notification system using AWS Lambda, CloudTrail, and EventBridge to detect IAM user changes, AWS service events, and security anomalies — delivering instant alerts to Microsoft Teams. Extended the same pipeline to push live CI/CD build and deployment status notifications.',
+      tags: ['Lambda', 'EventBridge', 'CloudTrail', 'MS Teams'],
+    },
+    {
+      title: 'Centralized ELK Logging Platform',
+      summary: 'Implemented an organization-wide ELK stack (Elasticsearch, Logstash, Kibana) for centralized log aggregation and real-time search across all services, reducing incident diagnosis time from hours to minutes.',
+      tags: ['Elasticsearch', 'Logstash', 'Kibana'],
+    },
+    {
+      title: 'Automated GitHub Code Review Pipeline',
+      summary: 'Built a multi-layer code quality gate on GitHub Actions enforcing ESLint and Prettier (frontend), KarmaJS (unit tests), SonarQube (static analysis), and CodeQL (security scanning) on every pull request.',
+      tags: ['GitHub Actions', 'SonarQube', 'CodeQL', 'ESLint'],
+    },
+    {
+      title: 'Slack-to-Jenkins Deployment Automation',
+      summary: 'Integrated Slack slash commands with Jenkins via webhooks to trigger and monitor deployments directly from chat, eliminating manual handoffs and improving deployment visibility for 10+ developers.',
+      tags: ['Slack API', 'Jenkins', 'Webhooks'],
+    },
+    {
+      title: 'Menu Image Upload Pipeline with S3 & In-Browser Cropper',
+      summary: 'Designed and built an end-to-end image management flow for admin UX with a browser-side image cropper and direct presigned-URL upload to S3, letting non-technical restaurant staff manage menu item images independently.',
+      tags: ['S3 Presigned URLs', 'JavaScript', 'Admin UX'],
+    },
+    {
+      title: 'Disaster Recovery & Backup Automation Framework',
+      summary: 'Built automated weekly backup pipelines for all production databases and servers with S3 uploads and integrity validation, achieving RPO < 24h and RTO < 4h for the organization.',
+      tags: ['Bash', 'S3', 'PostgreSQL', 'MySQL'],
+    },
+    {
+      title: 'HIPAA-Compliant Healthcare Infrastructure (Infolytx)',
+      summary: 'Designed and maintained Kubernetes-based infrastructure for a healthcare SaaS platform with full HIPAA compliance — including network isolation, secrets management, pod security, and continuous audit logging.',
+      tags: ['HIPAA', 'Kubernetes', 'Network Policies'],
+    },
+  ],
+  education: [
+    { degree: 'B.Sc. in Computer Engineering', school: 'American International University – Bangladesh (AIUB)', period: '2014 – 2018' },
+    { degree: 'H.S.C. in Science', school: 'Cambrian College', period: '2011 – 2013' },
+    { degree: 'S.S.C. in Science', school: "Sher-e-Bangla Government Boys' High School & College", period: '2009 – 2011' },
+  ],
+  certifications: [
+    { name: 'AWS Certified Solutions Architect – Associate (SAA-C03)', state: 'Planned' },
+    { name: 'AWS Certified DevOps Engineer – Professional (DOP-C02)', state: 'Planned' },
+    { name: 'Certified Kubernetes Administrator (CKA)', state: 'Planned' },
+    { name: 'EC-Council Certified Ethical Hacker (CEH)', state: 'Planned' },
+  ],
+  awards: [
+    {
+      title: '1st Place — ACES Project & Thesis Poster Competition',
+      date: 'April 2018',
+      detail: 'Real-Time Smart Traffic Management System — recognized as best project at the annual AIUB Computer Engineering symposium.',
+    },
   ],
 };

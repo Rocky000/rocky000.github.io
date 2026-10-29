@@ -22,14 +22,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => readFileSync(join(root, rel), 'utf8');
 
 const data = await import(pathToFileURL(join(root, 'js', 'data.js')).href);
-const { regions } = await import(pathToFileURL(join(root, 'js', 'render.js')).href);
+const { regions, yearsSince } = await import(pathToFileURL(join(root, 'js', 'render.js')).href);
 
 const SITE = 'https://rockibul.info/';
+// Counted from profile.careerStart at build time (the page itself recounts in the browser).
+const YEARS = yearsSince(data.profile.careerStart);
 const TITLE = 'Md. Rockibul Islam Khan — Senior DevOps &amp; Cloud Platform Engineer';
 const DESCRIPTION =
-  'Senior DevOps &amp; Cloud Platform Engineer keeping healthcare and restaurant SaaS on AWS up, fast and affordable — 7 years of EKS, Terraform and CI/CD in production, 99.95% availability, 30+ restaurant brands.';
+  `Senior DevOps &amp; Cloud Platform Engineer keeping healthcare and restaurant SaaS on AWS up, fast and affordable — ${YEARS} years of EKS, Terraform and CI/CD in production, 99.95% availability, 30+ restaurant brands.`;
 const SOCIAL_DESCRIPTION =
-  '7 years running EKS, Terraform and CI/CD in production — from a HIPAA-regulated healthcare platform to real-time POS systems across 30+ restaurant brands.';
+  `${YEARS} years running EKS, Terraform and CI/CD in production — from a HIPAA-regulated healthcare platform to real-time POS systems across 30+ restaurant brands.`;
 
 const body = read('partials/page.html')
   .replace(/<!-- partial:([\w.-]+) -->/g, (_, file) => read(`partials/${file}`).trim())
@@ -50,8 +52,13 @@ const html = `<!DOCTYPE html>
 <meta name="author" content="${data.profile.name}">
 <meta name="keywords" content="Md. Rockibul Islam Khan, Rockibul, Senior DevOps Engineer, Cloud Platform Engineer, AWS, Kubernetes, EKS, Jenkins, Terraform, CI/CD, SRE, Infrastructure as Code, Dhaka, Bangladesh">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#0A0B0D">
-<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#0A0B0D" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F6F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B0D" id="themeColor">
+<meta name="color-scheme" content="dark light">
+<script>
+(function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){}})();
+</script>
 
 <link rel="canonical" href="${SITE}">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="${SITE}sitemap.xml">
@@ -90,7 +97,7 @@ const html = `<!DOCTYPE html>
       "@id": "${SITE}#website",
       "url": "${SITE}",
       "name": "${data.profile.name}",
-      "description": "Senior DevOps & Cloud Platform Engineer with 7+ years building and operating business-critical AWS infrastructure.",
+      "description": "Senior DevOps & Cloud Platform Engineer with ${YEARS}+ years building and operating business-critical AWS infrastructure.",
       "inLanguage": "en",
       "publisher": { "@id": "${SITE}#person" }
     },
