@@ -1146,10 +1146,21 @@ section[id] { scroll-margin-top: 96px; }
 .footer__copy { display: flex; align-items: center; gap: 10px; }
 .footer__copy .brand__logo { width: 20px; height: 20px; }
 .footer__socials { display: flex; gap: 8px; margin-right: auto; }
-.footer__socials .icon-btn { color: var(--muted); }
-.footer__socials .icon-btn:hover { color: var(--text); }
-.footer__top { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--muted); transition: color .2s; }
-.footer__top:hover { color: var(--text-strong); }
+/* Same hover language as the rest of the page: accent-tinted border (cards), 2px lift (buttons), accent text. */
+.footer__socials .icon-btn {
+  color: var(--muted);
+  transition: color .25s, border-color .25s, transform .25s var(--ease);
+}
+.footer__socials .icon-btn:hover {
+  background: transparent;
+  color: var(--accent-text);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  transform: translateY(-2px);
+}
+.footer__top { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--muted); transition: color .25s; }
+.footer__top .icon { transition: transform .3s var(--ease); }
+.footer__top:hover { color: var(--accent-text); }
+.footer__top:hover .icon { transform: translateY(-3px); }
 .footer__mark {
   margin-top: 32px;
   margin-bottom: -2.5vw;
