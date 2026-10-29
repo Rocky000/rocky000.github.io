@@ -307,9 +307,9 @@ export const caseStudies = [
       'Built a reusable Jenkins Shared Library that every development team adopted.',
       'Added Slack-to-Jenkins deploys via slash commands and webhook notifiers.',
       'Built a GitHub pull-request quality gate: ESLint, Prettier, KarmaJS, SonarQube and CodeQL.',
-      'Sent pipeline status to Microsoft Teams so stakeholders see builds without opening Jenkins.',
+      'Posted Jenkins activity to Microsoft Teams through a Power Automate webhook, so stakeholders see builds and deploys without opening Jenkins.',
     ],
-    stack: ['Jenkins', 'Shared Libraries', 'GitHub Actions', 'SonarQube', 'CodeQL', 'Slack', 'MS Teams'],
+    stack: ['Jenkins', 'Shared Libraries', 'GitHub Actions', 'SonarQube', 'CodeQL', 'Slack', 'MS Teams', 'Power Automate'],
   },
   {
     id: 'case-cost',
@@ -326,10 +326,12 @@ export const caseStudies = [
     steps: [
       'Rightsized EC2, bought Reserved Instances and added S3 lifecycle rules — about 20% off the bill.',
       'Centralized logs from every production service in ELK.',
-      'Set up Prometheus and Grafana dashboards with alerting that catches issues before users do.',
+      'Built Grafana dashboards on Prometheus metrics that show the status of every resource at a glance.',
+      'Routed Grafana alerts to Microsoft Teams through a Power Automate webhook, so issues are caught before users notice.',
+      'Sent AWS activity — IAM user changes, service events and security anomalies — to Teams with a Lambda function on CloudTrail + EventBridge.',
       'Automated weekly database and server backups to S3 with validation, meeting RPO < 24h and RTO < 4h.',
     ],
-    stack: ['EC2', 'Reserved Instances', 'S3 lifecycle', 'ELK', 'Prometheus', 'Grafana'],
+    stack: ['EC2', 'Reserved Instances', 'S3 lifecycle', 'ELK', 'Prometheus', 'Grafana', 'Lambda', 'EventBridge', 'MS Teams', 'Power Automate'],
   },
   {
     id: 'case-hipaa',
@@ -355,9 +357,10 @@ export const caseStudies = [
 ];
 
 export const alsoShipped = [
-  'Lambda security notifier (CloudTrail → Teams)',
+  'AWS activity alerts to Teams (Lambda)',
   'Menu image pipeline',
-  'CI status to MS Teams',
+  'Jenkins & Grafana alerts to Teams (Power Automate)',
+  'Grafana resource-status dashboards',
   'Backup automation · RPO < 24h',
 ];
 
@@ -393,6 +396,7 @@ export const experience = [
     points: [
       'Built the org-wide Jenkins platform — ~60% faster pipeline setup.',
       'Cut AWS costs ~20%; ELK took incident diagnosis from hours to minutes.',
+      'Grafana dashboards for resource status; AWS, Jenkins and Grafana alerts sent to Microsoft Teams.',
       'Codified infra in Terraform + Ansible; backups meet RPO < 24h, RTO < 4h.',
       'Designed and built the Katria Support Portal end to end: UX, frontend and backend.',
       'Built real-time POS messaging over WebSocket (emergency messages and changelogs), live across 30+ brands.',
@@ -403,11 +407,11 @@ export const experience = [
       'Deployed a centralized ELK logging platform aggregating logs across all production services, reducing mean time to diagnose incidents from hours to minutes.',
       'Reduced AWS infrastructure costs by ~20% through EC2 rightsizing, Reserved Instance purchasing, and S3 lifecycle policy optimization.',
       'Built end-to-end Slack-to-Jenkins deployment automation via slash commands and webhook notifiers, eliminating manual deployment coordination across teams.',
-      'Implemented Grafana + Prometheus monitoring with custom dashboards and alerting, enabling proactive incident detection before user impact.',
+      'Implemented Grafana + Prometheus monitoring with dashboards that visualize the status of every resource, and Grafana alerts delivered to Microsoft Teams through a Power Automate webhook, enabling proactive incident detection before user impact.',
       'Automated weekly database and server backup pipelines to S3 with validation, meeting RPO < 24h and RTO < 4h targets for business continuity.',
       'Codified all infrastructure using Terraform and Ansible, enabling repeatable, auditable provisioning and disaster recovery drills.',
       'Built a serverless AWS Lambda–based notification system using CloudTrail + EventBridge to detect and alert on IAM user changes, service events, and security anomalies in real time via Microsoft Teams.',
-      'Extended the Lambda notifier to deliver CI/CD pipeline status updates to Microsoft Teams, giving all stakeholders live build and deployment visibility without accessing Jenkins directly.',
+      'Sent Jenkins pipeline activity to Microsoft Teams through a Power Automate webhook, giving all stakeholders live build and deployment visibility without accessing Jenkins directly.',
       'Engineered an automated GitHub code review pipeline enforcing quality and security across frontend (ESLint, Prettier, KarmaJS) and backend (SonarQube, CodeQL) on every pull request — reducing manual review cycles and catching vulnerabilities pre-merge.',
       'Designed and built the Katria Support Portal end to end (UX, frontend and backend): a live request log refreshing every second, incidents grouped by who should act, and an Error Guide of 40 known errors with fixes.',
       'Designed and shipped a real-time POS notification system (WebSocket + Webhook) currently live in production — sole owner of frontend, backend, and DevOps; delivers instant alerts to restaurant POS terminals across all brands with sub-second latency.',
@@ -467,7 +471,8 @@ export const stack = [
   { category: 'CI/CD', tools: 'Jenkins + Shared Libraries, GitHub Actions, Slack & MS Teams ChatOps' },
   { category: 'Infra as code', tools: 'Terraform, Ansible' },
   { category: 'Serverless', tools: 'Lambda, EventBridge, CloudTrail, SNS' },
-  { category: 'Observability', tools: 'Elasticsearch, Logstash, Kibana, Prometheus, Grafana' },
+  { category: 'Observability', tools: 'Elasticsearch, Logstash, Kibana, Prometheus, Grafana dashboards & alerting' },
+  { category: 'Alerting', tools: 'Microsoft Teams — AWS activity via Lambda, Jenkins and Grafana via Power Automate webhooks' },
   { category: 'Security', tools: 'HIPAA compliance, K8s network policies, secrets management, Nginx' },
   { category: 'Code quality', tools: 'SonarQube, CodeQL, ESLint, Prettier, KarmaJS' },
   { category: 'Build', tools: 'Bash, Python 3, Node.js, JavaScript, React, WebSocket — PostgreSQL, MySQL, MongoDB' },
@@ -512,11 +517,12 @@ export const resume = {
     { category: 'Cloud', items: ['AWS EC2', 'S3', 'RDS', 'VPC', 'IAM', 'ALB', 'Auto Scaling', 'CloudWatch', 'EKS', 'Lambda', 'EventBridge', 'CloudTrail', 'SNS'] },
     { category: 'Containers', items: ['Kubernetes', 'Docker', 'Helm Charts', 'EKS', 'ECS'] },
     { category: 'CI/CD', items: ['Jenkins', 'Jenkins Shared Libraries', 'GitHub Actions', 'Slack Integration', 'Microsoft Teams Integration'] },
+    { category: 'Alerting & Notifications', items: ['Microsoft Teams', 'Power Automate Webhooks', 'AWS Lambda Notifiers', 'Grafana Alerting', 'Slack'] },
     { category: 'Serverless', items: ['AWS Lambda', 'Amazon EventBridge', 'CloudTrail', 'SNS'] },
     { category: 'Code Quality', items: ['ESLint', 'Prettier', 'KarmaJS', 'SonarQube', 'CodeQL'] },
     { category: 'Real-Time', items: ['WebSocket', 'Webhooks', 'REST APIs'] },
     { category: 'Infrastructure as Code', items: ['Terraform', 'Ansible'] },
-    { category: 'Observability', items: ['Elasticsearch', 'Logstash', 'Kibana', 'Prometheus', 'Grafana', 'PagerDuty'] },
+    { category: 'Observability', items: ['Elasticsearch', 'Logstash', 'Kibana', 'Prometheus', 'Grafana Dashboards', 'Grafana Alerting', 'PagerDuty'] },
     { category: 'Databases', items: ['PostgreSQL', 'MySQL', 'MongoDB'] },
     { category: 'Programming', items: ['Bash', 'Python 3', 'Node.js', 'JavaScript', 'React'] },
     { category: 'Security', items: ['HIPAA Compliance', 'Nginx', 'K8s Network Policies', 'Secrets Management'] },
@@ -542,9 +548,14 @@ export const resume = {
       tags: ['Jenkins', 'Groovy', 'CI/CD'],
     },
     {
-      title: 'AWS Lambda Real-Time Security & CI/CD Notifier',
-      summary: 'Built a serverless notification system using AWS Lambda, CloudTrail, and EventBridge to detect IAM user changes, AWS service events, and security anomalies — delivering instant alerts to Microsoft Teams. Extended the same pipeline to push live CI/CD build and deployment status notifications.',
-      tags: ['Lambda', 'EventBridge', 'CloudTrail', 'MS Teams'],
+      title: 'Microsoft Teams Alerts & Notifications',
+      summary: 'Brought operational alerts into Microsoft Teams: AWS activity (IAM user changes, service events, security anomalies) through a serverless Lambda function on CloudTrail + EventBridge, and Jenkins build/deployment activity and Grafana alerts through Power Automate Teams webhooks.',
+      tags: ['AWS Lambda', 'EventBridge', 'CloudTrail', 'Power Automate', 'MS Teams', 'Jenkins', 'Grafana'],
+    },
+    {
+      title: 'Grafana Resource Status Dashboards',
+      summary: 'Built Grafana dashboards on Prometheus metrics that visualize the status of infrastructure resources and services at a glance, with alert rules routed to Microsoft Teams.',
+      tags: ['Grafana', 'Prometheus', 'Power Automate', 'MS Teams'],
     },
     {
       title: 'Centralized ELK Logging Platform',
