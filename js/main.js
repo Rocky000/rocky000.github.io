@@ -6,18 +6,34 @@
 const $ = (sel, root = document) => root.querySelector(sel);
 const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
 
-const state = { menuOpen: false, paletteOpen: false, popupOpen: false, contactVisible: false };
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const state = { menuOpen: false, paletteOpen: false, drawerOpen: false };
 
-function syncStickyCta() {
-  const bar = $('#stickyCta');
-  if (!bar) return;
-  const hide = state.menuOpen || state.paletteOpen || state.popupOpen || state.contactVisible;
-  bar.classList.toggle('is-hidden', hide);
-  bar.inert = hide;
+/*
+ * Years of experience ({years} / {Years} in js/data.js) are prerendered at build
+ * time; recount them here so the page rolls over on 1 January without a rebuild.
+ * Keep YEAR_WORDS in sync with js/render.js (main.js loads no other module).
+ */
+const YEAR_WORDS = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+  'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen', 'Twenty'];
+
+function initYears() {
+  const now = new Date().getFullYear();
+  $$('[data-year]').forEach((el) => {
+    el.textContent = String(now);
+  });
+  $$('[data-years]').forEach((el) => {
+    const n = Math.max(0, now - Number(el.dataset.years));
+    el.textContent = el.dataset.yearsFormat === 'word' ? YEAR_WORDS[n] ?? String(n) : String(n);
+  });
 }
 
+/*
+ * Theme: follows the OS until the visitor picks one; the choice is stored in
+ * localStorage (`theme`). The inline head script applies it before first paint.
+ */
 const THEME_KEY = 'theme';
-const THEME_COLORS = { dark: '#07080c', light: '#f7f8fa' };
+const THEME_COLORS = { dark: '#0A0B0D', light: '#F6F6F3' };
 
 function currentTheme() {
   return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark';
@@ -29,30 +45,36 @@ function applyTheme(theme, { persist = false } = {}) {
   if (persist) {
     try { localStorage.setItem(THEME_KEY, next); } catch {}
   }
-  const btn = $('#themeToggle');
-  if (btn) {
-    const toLight = next === 'dark';
-    btn.setAttribute('aria-label', toLight ? 'Switch to light theme' : 'Switch to dark theme');
-    btn.setAttribute('aria-pressed', String(next === 'light'));
-  }
-  const meta = $('#themeColor');
-  if (meta) meta.setAttribute('content', THEME_COLORS[next]);
+  $('#themeToggle')?.setAttribute('aria-label', next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+  $('#themeColor')?.setAttribute('content', THEME_COLORS[next]);
 }
 
 function initTheme() {
   applyTheme(currentTheme());
-
   $('#themeToggle')?.addEventListener('click', () => {
     applyTheme(currentTheme() === 'light' ? 'dark' : 'light', { persist: true });
   });
-
-  const mq = window.matchMedia('(prefers-color-scheme: light)');
-  mq.addEventListener('change', (e) => {
+  window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (e) => {
     let stored = null;
     try { stored = localStorage.getItem(THEME_KEY); } catch {}
-    if (stored === 'light' || stored === 'dark') return;
-    applyTheme(e.matches ? 'light' : 'dark');
+    if (stored !== 'light' && stored !== 'dark') applyTheme(e.matches ? 'light' : 'dark');
   });
+}
+
+/* Browsers without scroll-driven animations: drive the bar from JS. */
+function initScrollProgress() {
+  const bar = $('.progress');
+  if (!bar || CSS.supports('animation-timeline: scroll()')) return;
+  let queued = false;
+  const update = () => {
+    queued = false;
+    const max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.setProperty('--progress', String(max > 0 ? Math.min(1, window.scrollY / max) : 0));
+  };
+  window.addEventListener('scroll', () => {
+    if (!queued) { queued = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
 }
 
 function initMenu() {
@@ -67,29 +89,29 @@ function initMenu() {
     toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
     if (open) $('a', menu)?.focus();
     else if (restoreFocus) toggle.focus();
-    syncStickyCta();
   };
 
   toggle.addEventListener('click', () => setOpen(!state.menuOpen));
   menu.addEventListener('click', (e) => {
     if (e.target.closest('a')) setOpen(false);
   });
+  $('.brand')?.addEventListener('click', () => state.menuOpen && setOpen(false));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && state.menuOpen) setOpen(false, { restoreFocus: true });
   });
   document.addEventListener('click', (e) => {
     if (state.menuOpen && !e.target.closest('#nav')) setOpen(false);
   });
-  window.matchMedia('(min-width: 900px)').addEventListener('change', (e) => {
+  window.matchMedia('(min-width: 761px)').addEventListener('change', (e) => {
     if (e.matches && state.menuOpen) setOpen(false);
   });
 }
 
-function initActiveNav() {
+/* Highlights the nav link of the section crossing the middle of the viewport. */
+function initScrollSpy() {
   const links = $$('[data-nav]');
-  const ids = [...new Set(links.map((a) => a.dataset.nav))];
-  const sections = ids.map((id) => document.getElementById(id)).filter(Boolean);
-  if (!sections.length || !('IntersectionObserver' in window)) return;
+  const sections = $$('main > section[id]');
+  if (!links.length || !('IntersectionObserver' in window)) return;
 
   const setActive = (id) => {
     links.forEach((a) => {
@@ -104,153 +126,228 @@ function initActiveNav() {
         if (entry.isIntersecting) setActive(entry.target.id);
       });
     },
-    { rootMargin: '-40% 0px -55% 0px' },
+    { rootMargin: '-45% 0px -50% 0px' },
   );
   sections.forEach((s) => spy.observe(s));
+}
 
-  const home = document.getElementById('home');
-  if (home) {
+/* Count up once when the band scrolls into view. Final values are prerendered. */
+function initMetrics() {
+  const band = $('[data-metrics]');
+  const values = $$('[data-count]', band || undefined);
+  if (!band || !values.length || reduceMotion || !('IntersectionObserver' in window)) return;
+  if (band.getBoundingClientRect().bottom < 0) return; // already scrolled past
+
+  const format = (el, p) =>
+    `${el.dataset.prefix}${(Number(el.dataset.count) * p).toFixed(Number(el.dataset.decimals))}${el.dataset.suffix}`;
+  values.forEach((el) => { el.textContent = format(el, 0); });
+
+  let started = false;
+  const start = () => {
+    if (started) return;
+    started = true;
+    io.disconnect();
+    clearTimeout(fallback);
+    const t0 = performance.now();
+    const tick = (now) => {
+      const t = Math.min(1, (now - t0) / 1800);
+      const p = t < 1 ? 1 - Math.pow(2, -10 * t) : 1;
+      values.forEach((el) => { el.textContent = format(el, p); });
+      if (t < 1) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+  const io = new IntersectionObserver((entries) => {
+    if (entries.some((e) => e.isIntersecting)) start();
+  }, { threshold: 0.25 });
+  io.observe(band);
+  const fallback = setTimeout(start, 6000);
+}
+
+/*
+ * Screenshot viewer: the active tab's 5 s progress bar is a CSS animation;
+ * when it ends we advance. Clicking a tab stops auto-advance for good.
+ */
+function initViewer() {
+  const viewer = $('[data-viewer]');
+  if (!viewer) return;
+  const tabs = $$('[data-shot]', viewer);
+  const shots = $$('.viewer__shot', viewer);
+  const captions = $$('[data-caption]', viewer);
+  let active = 0;
+
+  const show = (i) => {
+    active = i;
+    tabs.forEach((t, n) => {
+      t.classList.toggle('is-active', n === i);
+      t.setAttribute('aria-pressed', String(n === i));
+    });
+    shots.forEach((s, n) => {
+      s.classList.toggle('is-active', n === i);
+      if (n === i) s.removeAttribute('aria-hidden');
+      else s.setAttribute('aria-hidden', 'true');
+    });
+    captions.forEach((c, n) => { c.hidden = n !== i; });
+  };
+
+  const stopAuto = () => viewer.classList.remove('is-auto');
+  if (!reduceMotion) viewer.classList.add('is-auto');
+
+  viewer.addEventListener('animationend', (e) => {
+    if (!e.target.classList?.contains('viewer__progress') || !viewer.classList.contains('is-auto')) return;
+    show((active + 1) % tabs.length);
+  });
+
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => {
+      stopAuto();
+      show(i);
+    });
+  });
+
+  // Don't advance while nobody can see it.
+  if ('IntersectionObserver' in window) {
     new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setActive(null);
-    }, { rootMargin: '-40% 0px -55% 0px' }).observe(home);
+      viewer.classList.toggle('is-paused', !entry.isIntersecting);
+    }).observe(viewer);
   }
 }
 
-function initStickyCta() {
-  const contact = document.getElementById('contact');
-  if (!contact || !('IntersectionObserver' in window)) return;
-  new IntersectionObserver(([entry]) => {
-    state.contactVisible = entry.isIntersecting;
-    syncStickyCta();
-  }).observe(contact);
-}
+/* Case-study drawer: one dialog shell, filled from prerendered <template>s. */
+function initDrawer() {
+  const root = $('#caseDrawer');
+  const body = $('#drawerBody');
+  const tags = $('#drawerTags');
+  const count = $('#drawerCount');
+  const closeBtn = $('#drawerClose');
+  const templates = $$('template[id^="tpl-"]');
+  if (!root || !body || !templates.length) return null;
 
-function openTargetDetails(openCasePopup) {
-  const open = () => {
-    const id = location.hash ? location.hash.slice(1) : '';
-    const target = id ? document.getElementById(id) : null;
-    if (!target) return;
-    if (id.startsWith('case-') && target.matches('.case') && openCasePopup) {
-      const details = $('[data-popup]', target);
-      if (details) openCasePopup(details);
-      return;
-    }
-    const details = target.closest('details');
-    if (details && !details.hasAttribute('data-popup')) details.open = true;
-  };
-  window.addEventListener('hashchange', open);
-  open();
-}
-
-function initPopups() {
-  const root = $('#detailModal');
-  const titleEl = $('#popupTitle');
-  const subtitleEl = $('#popupSubtitle');
-  const body = $('#popupBody');
-  if (!root || !titleEl || !body) return;
-
-  document.documentElement.classList.add('js');
-
+  const ids = templates.map((t) => t.id.slice(4));
+  let current = -1;
   let returnFocus = null;
-  let sourceDetails = null;
 
-  const focusables = () =>
-    $$('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])', root.querySelector('.popup__dialog'))
-      .filter((el) => !el.hasAttribute('disabled') && el.offsetParent !== null);
+  const background = () => $$('body > *').filter((el) => el !== root && !el.matches('template, script'));
+
+  const render = (i) => {
+    current = (i + templates.length) % templates.length;
+    const tpl = templates[current];
+    body.replaceChildren(tpl.content.cloneNode(true));
+    body.scrollTop = 0;
+    tags.textContent = tpl.dataset.tags;
+    count.textContent = `${current + 1} / ${templates.length}`;
+  };
+
+  const open = (id, trigger) => {
+    const i = ids.indexOf(id);
+    if (i < 0) return;
+    returnFocus = trigger || document.activeElement;
+    render(i);
+    const html = document.documentElement;
+    html.style.setProperty('--sb', `${window.innerWidth - html.clientWidth}px`);
+    html.classList.add('is-locked');
+    background().forEach((el) => { el.inert = true; });
+    root.hidden = false;
+    state.drawerOpen = true;
+    closeBtn.focus();
+    // On a #case-… page load the browser's own fragment handling runs after us.
+    requestAnimationFrame(() => { if (state.drawerOpen && !root.contains(document.activeElement)) closeBtn.focus(); });
+  };
 
   const close = () => {
-    if (root.hidden) return;
+    if (!state.drawerOpen) return;
     root.hidden = true;
-    state.popupOpen = false;
-    syncStickyCta();
+    state.drawerOpen = false;
+    document.documentElement.classList.remove('is-locked');
+    background().forEach((el) => { el.inert = false; });
     body.replaceChildren();
-    titleEl.textContent = '';
-    if (subtitleEl) {
-      subtitleEl.textContent = '';
-      subtitleEl.hidden = true;
-    }
-    if (sourceDetails) sourceDetails.open = false;
-    sourceDetails = null;
     if (returnFocus instanceof HTMLElement) returnFocus.focus();
     returnFocus = null;
   };
 
-  const openFromDetails = (details) => {
-    if (!(details instanceof HTMLDetailsElement)) return;
-    const caseEl = details.closest('.case');
-    const jobEl = details.closest('.job');
-    const panel = $('.case__detail, .job__bullets', details);
-    if (!panel) return;
-
-    details.open = false;
-    returnFocus = $('.popup-trigger', details) || document.activeElement;
-    sourceDetails = details;
-
-    if (caseEl) {
-      titleEl.textContent = $('.case__title', caseEl)?.textContent.trim() || 'Case study';
-      if (subtitleEl) {
-        subtitleEl.textContent = $$('.case__meta > span', caseEl)
-          .map((s) => s.textContent.trim())
-          .filter(Boolean)
-          .join(' · ');
-        subtitleEl.hidden = !subtitleEl.textContent;
-      }
-    } else if (jobEl) {
-      titleEl.textContent = $('.job__role', jobEl)?.textContent.trim() || 'Responsibilities';
-      if (subtitleEl) {
-        const company = $('.job__company', jobEl)?.textContent.trim() || '';
-        const meta = $('.job__meta', jobEl)?.textContent.trim() || '';
-        subtitleEl.textContent = [company, meta].filter(Boolean).join(' · ');
-        subtitleEl.hidden = !subtitleEl.textContent;
-      }
-    } else {
-      titleEl.textContent = 'Details';
-      if (subtitleEl) subtitleEl.hidden = true;
-    }
-
-    body.replaceChildren(panel.cloneNode(true));
-    root.hidden = false;
-    state.popupOpen = true;
-    syncStickyCta();
-    $('[data-popup-close].popup__close', root)?.focus();
-  };
-
   document.addEventListener('click', (e) => {
-    const trigger = e.target.closest('.popup-trigger');
-    if (!trigger) return;
-    const details = trigger.closest('details[data-popup]');
-    if (!details) return;
-    e.preventDefault();
-    openFromDetails(details);
-  });
-
-  root.addEventListener('click', (e) => {
-    if (e.target.closest('[data-popup-close]')) close();
+    const trigger = e.target.closest('[data-case-open]');
+    if (trigger) {
+      open(trigger.dataset.caseOpen, trigger);
+      return;
+    }
+    if (!state.drawerOpen) return;
+    if (e.target.closest('[data-drawer-close]')) close();
+    const step = e.target.closest('[data-drawer-step]');
+    if (step) render(current + Number(step.dataset.drawerStep));
   });
 
   document.addEventListener('keydown', (e) => {
-    if (root.hidden) return;
+    if (!state.drawerOpen) return;
     if (e.key === 'Escape') {
       e.preventDefault();
       close();
-      return;
-    }
-    if (e.key !== 'Tab') return;
-    const items = focusables();
-    if (!items.length) return;
-    const first = items[0];
-    const last = items[items.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
       e.preventDefault();
-      last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault();
-      first.focus();
+      render(current + (e.key === 'ArrowRight' ? 1 : -1));
     }
   });
 
-  openTargetDetails(openFromDetails);
-  return openFromDetails;
+  // Deep links: #case-… opens that case (focus returns to its card button).
+  const fromHash = () => {
+    const id = location.hash.slice(1);
+    if (ids.includes(id)) open(id, $(`[data-case-open="${id}"]`));
+  };
+  window.addEventListener('hashchange', fromHash);
+  fromHash();
+  return { open, close };
+}
+
+function initCopyEmail() {
+  const btn = $('#copyEmail');
+  const label = $('[data-copy-label]', btn || undefined);
+  if (!btn || !label) return;
+  const email = btn.dataset.email;
+  let timer = 0;
+
+  const fallbackCopy = () => {
+    const area = Object.assign(document.createElement('textarea'), { value: email, readOnly: true });
+    area.style.cssText = 'position:fixed;opacity:0';
+    document.body.append(area);
+    area.select();
+    const ok = document.execCommand('copy');
+    area.remove();
+    return ok;
+  };
+
+  btn.addEventListener('click', async () => {
+    let ok = false;
+    try {
+      await navigator.clipboard.writeText(email);
+      ok = true;
+    } catch {
+      ok = fallbackCopy();
+    }
+    if (!ok) {
+      window.location.href = `mailto:${email}`;
+      return;
+    }
+    btn.classList.add('is-copied');
+    label.textContent = 'Copied';
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      btn.classList.remove('is-copied');
+      label.textContent = 'Copy email';
+    }, 2000);
+  });
+}
+
+/* Old anchors (#projects, #skills, …) from links shared before the redesign. */
+function initLegacyAnchors() {
+  const moved = { home: 'top', projects: 'work', skills: 'stack', credentials: 'about' };
+  const redirect = () => {
+    const next = moved[location.hash.slice(1)];
+    if (!next) return;
+    history.replaceState(null, '', `#${next}`);
+    document.getElementById(next)?.scrollIntoView();
+  };
+  window.addEventListener('hashchange', redirect);
+  redirect();
 }
 
 /* Command palette: built on first use from links already in the page. */
@@ -273,33 +370,19 @@ function initCommandPalette() {
     }));
     go.push({ label: 'Go to Contact', hint: '#contact', run: () => $('a[href="#contact"]')?.click() });
 
-    const email = $('a[href^="mailto:"]')?.getAttribute('href').replace('mailto:', '');
-    const copy = email
-      ? [{
-          label: 'Copy email',
-          hint: email,
-          run: async () => {
-            try {
-              await navigator.clipboard.writeText(email);
-            } catch {
-              window.location.href = `mailto:${email}`;
-            }
-          },
-        }]
+    const copyBtn = $('#copyEmail');
+    const copy = copyBtn
+      ? [{ label: 'Copy email', hint: copyBtn.dataset.email, run: () => copyBtn.click() }]
       : [];
 
     const socials = $$('.footer [data-social]').map((a) => ({
-      label: `Open ${a.getAttribute('aria-label') || a.dataset.social}`,
+      label: `Open ${(a.getAttribute('aria-label') || a.dataset.social).replace(/ \(.*\)$/, '')}`,
       hint: a.dataset.handle,
       run: () => window.open(a.href, '_blank', 'noopener,noreferrer'),
     }));
 
     const next = currentTheme() === 'light' ? 'dark' : 'light';
-    const theme = [{
-      label: `Switch to ${next} theme`,
-      hint: next,
-      run: () => applyTheme(next, { persist: true }),
-    }];
+    const theme = [{ label: `Switch to ${next} theme`, hint: next, run: () => applyTheme(next, { persist: true }) }];
 
     return [...go, ...copy, ...socials, ...theme];
   };
@@ -327,7 +410,6 @@ function initCommandPalette() {
     returnFocus = document.activeElement;
     root.hidden = false;
     state.paletteOpen = true;
-    syncStickyCta();
     input.value = '';
     filtered = actions;
     active = 0;
@@ -338,7 +420,6 @@ function initCommandPalette() {
   const close = () => {
     root.hidden = true;
     state.paletteOpen = false;
-    syncStickyCta();
     if (returnFocus instanceof HTMLElement) returnFocus.focus();
   };
 
@@ -360,8 +441,12 @@ function initCommandPalette() {
   root.addEventListener('click', (e) => {
     if (e.target.closest('[data-cmd-close]')) close();
   });
+  $('#cmdOpen')?.addEventListener('click', () => {
+    if (root.hidden && !state.drawerOpen) open();
+  });
 
   document.addEventListener('keydown', (e) => {
+    if (state.drawerOpen) return;
     const typing = e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
     const metaK = (e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k';
     const slash = e.key === '/' && !typing && !e.metaKey && !e.ctrlKey && !e.altKey;
@@ -401,14 +486,16 @@ function initCommandPalette() {
 }
 
 function init() {
-  $$('[data-year]').forEach((el) => {
-    el.textContent = String(new Date().getFullYear());
-  });
+  initYears();
   initTheme();
+  initScrollProgress();
   initMenu();
-  initActiveNav();
-  initStickyCta();
-  initPopups();
+  initScrollSpy();
+  initMetrics();
+  initViewer();
+  initLegacyAnchors();
+  initDrawer();
+  initCopyEmail();
   initCommandPalette();
 }
 

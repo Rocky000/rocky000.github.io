@@ -22,14 +22,16 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (rel) => readFileSync(join(root, rel), 'utf8');
 
 const data = await import(pathToFileURL(join(root, 'js', 'data.js')).href);
-const { regions } = await import(pathToFileURL(join(root, 'js', 'render.js')).href);
+const { regions, yearsSince } = await import(pathToFileURL(join(root, 'js', 'render.js')).href);
 
 const SITE = 'https://rockibul.info/';
+// Counted from profile.careerStart at build time (the page itself recounts in the browser).
+const YEARS = yearsSince(data.profile.careerStart);
 const TITLE = 'Md. Rockibul Islam Khan — Senior DevOps &amp; Cloud Platform Engineer';
 const DESCRIPTION =
-  'Senior DevOps &amp; Cloud Platform Engineer keeping healthcare and restaurant SaaS on AWS up, fast and affordable — 7 years of EKS, Terraform and CI/CD in production, 99.95% availability, 30+ restaurant brands.';
+  `Senior DevOps &amp; Cloud Platform Engineer keeping healthcare and restaurant SaaS on AWS up, fast and affordable — ${YEARS} years of EKS, Terraform and CI/CD in production, 99.95% availability, 30+ restaurant brands.`;
 const SOCIAL_DESCRIPTION =
-  '7 years running EKS, Terraform and CI/CD in production — from a HIPAA-regulated healthcare platform to real-time POS systems across 30+ restaurant brands.';
+  `${YEARS} years running EKS, Terraform and CI/CD in production — from a HIPAA-regulated healthcare platform to real-time POS systems across 30+ restaurant brands.`;
 
 const body = read('partials/page.html')
   .replace(/<!-- partial:([\w.-]+) -->/g, (_, file) => read(`partials/${file}`).trim())
@@ -50,9 +52,9 @@ const html = `<!DOCTYPE html>
 <meta name="author" content="${data.profile.name}">
 <meta name="keywords" content="Md. Rockibul Islam Khan, Rockibul, Senior DevOps Engineer, Cloud Platform Engineer, AWS, Kubernetes, EKS, Jenkins, Terraform, CI/CD, SRE, Infrastructure as Code, Dhaka, Bangladesh">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#07080c" media="(prefers-color-scheme: dark)">
-<meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#07080c" id="themeColor">
+<meta name="theme-color" content="#0A0B0D" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F6F6F3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0A0B0D" id="themeColor">
 <meta name="color-scheme" content="dark light">
 <script>
 (function(){try{var t=localStorage.getItem('theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';document.documentElement.dataset.theme=t;}catch(e){}})();
@@ -78,10 +80,11 @@ const html = `<!DOCTYPE html>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 
-<link rel="preload" href="assets/fonts/syne-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/geist-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-  @font-face { font-family: Syne; src: url("assets/fonts/syne-latin.woff2") format("woff2"); font-weight: 700 800; font-style: normal; font-display: swap; }
-  @font-face { font-family: "DM Sans"; src: url("assets/fonts/dm-sans-latin.woff2") format("woff2"); font-weight: 400 600; font-style: normal; font-display: swap; }
+  @font-face { font-family: Geist; src: url("assets/fonts/geist-latin.woff2") format("woff2"); font-weight: 300 700; font-style: normal; font-display: swap; }
+  @font-face { font-family: "Geist Mono"; src: url("assets/fonts/geist-mono-latin.woff2") format("woff2"); font-weight: 400 500; font-style: normal; font-display: swap; }
+  @font-face { font-family: Lexend; src: url("assets/fonts/lexend-latin.woff2") format("woff2"); font-weight: 400 600; font-style: normal; font-display: swap; }
 </style>
 <link rel="stylesheet" href="css/style.css">
 
@@ -94,7 +97,7 @@ const html = `<!DOCTYPE html>
       "@id": "${SITE}#website",
       "url": "${SITE}",
       "name": "${data.profile.name}",
-      "description": "Senior DevOps & Cloud Platform Engineer with 7+ years building and operating business-critical AWS infrastructure.",
+      "description": "Senior DevOps & Cloud Platform Engineer with ${YEARS}+ years building and operating business-critical AWS infrastructure.",
       "inLanguage": "en",
       "publisher": { "@id": "${SITE}#person" }
     },
@@ -155,7 +158,7 @@ const hashOf = (rel) => {
 
 // Stamp relative asset URLs only (absolute og:image etc. are preceded by "/").
 const stamped = html.replace(
-  /(?<![\w/.-])((?:assets|css|js)\/[\w./-]+\.(?:css|js|woff2|png|jpe?g|avif|svg|pdf))(?![\w?])/g,
+  /(?<![\w/.-])((?:assets|css|js)\/[\w./-]+\.(?:css|js|woff2|png|jpe?g|avif|webp|svg|pdf))(?![\w?])/g,
   (path) => `${path}?v=${hashOf(path)}`,
 );
 
